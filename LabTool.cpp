@@ -14,12 +14,13 @@
 #include <sstream>
 
 //boost headers
+/*
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/sync/named_mutex.hpp>
 #include <boost/interprocess/sync/named_condition.hpp>
 #include <boost/interprocess/sync/scoped_lock.hpp>
-
+*/
 //SWRSToys headers
 #include "swrs.h"
 #include "fields.h"
@@ -28,8 +29,9 @@
 //Personal headers
 #include "functions.cpp"
 
+/*
 using namespace boost::interprocess;
-
+*/
 
 
 #define CBattleManager_Create(p) \
@@ -50,17 +52,17 @@ static DWORD s_origCBattleManager_Size;
 #define ADDR_BMGR_P1 0x0C
 #define ADDR_BMGR_P2 0x10
 
-
+/*
 static shared_memory_object *smo = nullptr;
 static mapped_region *region_p1 = nullptr;
 static mapped_region *region_p2 = nullptr;
 static int SMO_SIZE = 108; //player1 + player2 + savestate_mode
 static named_mutex *named_mtx = nullptr;
 static named_condition *named_cnd = nullptr;
+*/
 
 
-
-
+/*
 void create_IPC() {
 	shared_memory_object::remove("MySharedMemory");
 	smo = new shared_memory_object(create_only, "MySharedMemory", read_write);
@@ -74,7 +76,7 @@ void create_IPC() {
 	named_cnd = new named_condition{open_or_create, "cnd"};
 	//lock here ?
 }
-
+*/
 void OpenConsole() {
 	if (AllocConsole()) {
 		FILE* stream; // initializing this makes the game crash, but not doing so causes a warning, hence the pragma
@@ -97,10 +99,10 @@ void OpenConsole() {
 void* __fastcall CBattleManager_OnCreate(void *This) {
 	CBattleManager_Create(This);
 	std::cout << "OnCreate Called" << std::endl;
-
+/*
 	create_IPC();
 	std::cout << "create_IPC called" << std::endl;
-	
+*/
 	return This;
 }
 
@@ -161,12 +163,12 @@ void* __fastcall CBattleManager_OnDestruct(void *This, int mystery, int dyn) {
 	void* ret;
 	ret = CBattleManager_Destruct(This, dyn);
 	std::cout << "OnDestruct Called" << std::endl;
-
+/*
 	shared_memory_object::remove("MySharedMemory");
 	named_mutex::remove("mtx");
 	named_condition::remove("cnd");
 	std::cout << "smo, mtx and cnd destroyed" << std::endl << std::endl;
-
+*/
 	return ret;
 }
 
