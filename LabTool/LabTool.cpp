@@ -35,7 +35,8 @@ __declspec(selectany) const BYTE TARGET_HASH[16] =
 	// ver1.10a
 	0xdf, 0x35, 0xd1, 0xfb, 0xc7, 0xb5, 0x83, 0x31, 0x7a, 0xda, 0xbe, 0x8c, 0xd9, 0xf5, 0x3b, 0x2e
 };
-
+#define SWRS_ADDR_1PKEYMAP 0x00898940
+#define SWRS_ADDR_2PKEYMAP 0x0089912C
 
 #define CBattleManager_Create(p) \
   Ccall(p, s_origCBattleManager_OnCreate, void*, ())()
@@ -57,6 +58,7 @@ static DWORD s_origCBattleManager_Size;
 
 static char s_profilePath[1024 + MAX_PATH];
 Keys savestate_keys;
+Commands commands;
 
 void OpenConsole() {
 	if (AllocConsole()) {
@@ -74,12 +76,30 @@ void OpenConsole() {
 	std::cout << "Console allocated:" << std::endl;
 }
 
+/*
+void register_keymap(INPUT *inputs, int inputCount, int *keymap, int keymapIndex) {
+
+
+
+	inputs[inputCount].type = INPUT_KEYBOARD;
+	inputs[inputCount].ki.wVk = 0;
+	inputs[inputCount].ki.wScan = keymap[keymapIndex];
+	inputs[inputCount].ki.dwFlags =
+	inputs[inputCount].ki.time = 0;
+	inputs[inputCount].ki.dwExtraInfo = 0;
+}*/
+
 void* __fastcall CBattleManager_OnCreate(void *This) {
 	CBattleManager_Create(This);
 	std::cout << "OnCreate Called" << std::endl;
 
-	savestate_keys.save = ::GetPrivateProfileInt("KEYS", "save", 0, s_profilePath);
-	savestate_keys.reset = ::GetPrivateProfileInt("KEYS", "reset", 0, s_profilePath);
+	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
+	savestate_keys.reset_pos = ::GetPrivateProfileInt("KEYS", "reset_pos", 0, s_profilePath);
+	savestate_keys.reset_skills = ::GetPrivateProfileInt("KEYS", "reset_skills", 0, s_profilePath);
+
+	int *keymap_p1 = (int *)SWRS_ADDR_1PKEYMAP;
+	int *keymap_p2 = (int *)SWRS_ADDR_2PKEYMAP;
+
 	return This;
 }
 
@@ -93,9 +113,9 @@ int __fastcall CBattleManager_OnProcess(void *This) {
 	ret = CBattleManager_Process(This);
 	int battleManager = ACCESS_INT(ADDR_BATTLE_MANAGER, 0);
 
+
 	if (g_mainMode == SWRSMODE_VSPLAYER || g_mainMode == SWRSMODE_PRACTICE)
 	{
-
 		Player p1;
 		Player p2;
 		update_playerinfo(&p1, battleManager, ADDR_BMGR_P1);
@@ -103,9 +123,15 @@ int __fastcall CBattleManager_OnProcess(void *This) {
 
 		position_management(&p1, &p2);
 		trademash_count(&p2);
+		hjcadvantage_count(&p1, &p2);
 		frameadvantage_count(&p1, &p2);
+		random_CH(&p2);
+		fixed_tech(&p1);
+
 		state_display(&p1);
 		state_display(&p2);
+		reset_skills(&p1);
+		reset_skills(&p2);
 	}
 
 	return ret;
@@ -131,6 +157,7 @@ extern "C" {
 	{
 		DWORD old;
 		OpenConsole();
+
 
 		/* .ini */
 		::GetModuleFileName(hMyModule, s_profilePath, 1024);
@@ -160,3 +187,36 @@ extern "C" {
 //https://stackoverflow.com/a/32999084
 //https://stackoverflow.com/a/33001454
 //https://stackoverflow.com/a/8145349
+
+/*
+TODO LIST:
+	Macros:
+*Random CH
+*Fixed tech 4/5/6
+*Random tech
+*BE after X hits toggle
+*Reversal options after X hits, either Dash, HJ, or invincible attack
+*(same as above, but for wake-up as well)
+
+	Resource options:
+Precise spirit setting
+
+	Input display options:
+*Xrd movement display (in my wet dreams)
+*Change the position of that input viewer would be nice
+*Display the attack (such as 6A, 22B, 5AAA...)
+*Combo Recipe
+
+	Cards related options:
+*Decks retained when positions are reset so you don't need to flip through meter again
+*choosing what level of skill you want
+*A way to start training with alts in your deck already on(probably impossible, but it would be nice)
+
+	Weather options:
+Set timer for incoming weather or ending weather
+
+	Character specific options:
+*Sanae packet selection
+*No/Minimal CD Sanae assists
+*Save position of alice dolls when you save position of characters
+*/

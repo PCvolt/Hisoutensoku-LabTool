@@ -67,6 +67,14 @@
 #define CF_PRESSED_AB_1 0x78C // int
 #define CF_PRESSED_BC_1 0x790 // int
 #define CF_PRESSED_COMBINATION 0x7C8 // int
+/*
+PRESSED COMBINATION CODES: (B version, multiply by two for C version)
+421: 139296
+214: 32
+22: 536870912
+236: 2
+623: 514
+*/
 #define CF_CHARGE_ATTACK 0x7F4 // char
 #define CF_DAMAGE_LIMITED 0x7F7 // bool
 

@@ -125,7 +125,7 @@
 #define ADDR_GET_PACKAGED_SFL_CALLER	0x00418F41
 
 
-/* ISSUE: What the fuck*/
+
 #ifdef SWRS_USES_HASH
 extern const BYTE TARGET_HASH[16];
 __declspec(selectany) const BYTE TARGET_HASH[16] =

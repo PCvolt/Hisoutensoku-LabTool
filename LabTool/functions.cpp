@@ -80,6 +80,7 @@ Position RN_P1 = init_pos(RIGHT_NEAR_P1);
 Position RN_P2 = init_pos(RIGHT_NEAR_P2);
 Position RC_P1 = init_pos(RIGHT_CORNER_P1);
 Position RC_P2 = init_pos(RIGHT_CORNER_P2);
+
 Position save_checkpoint(Player *player)
 {
 	Position pos;
@@ -117,7 +118,7 @@ void set_position(Player *player, Position pos, int mode)
 bool held_save_key = FALSE;
 bool held_set_key = FALSE;
 void position_management(Player *p1, Player *p2) {
-	if (GetKeyState(savestate_keys.save) & 0x8000) {
+	if (GetKeyState(savestate_keys.save_pos) & 0x8000) {
 		if (!held_save_key)
 		{
 			custom_pos = save_checkpoint(p1);
@@ -132,7 +133,7 @@ void position_management(Player *p1, Player *p2) {
 	}
 
 
-	if (GetKeyState(savestate_keys.reset) & 0x8000)
+	if (GetKeyState(savestate_keys.reset_pos) & 0x8000)
 	{
 		if (!held_set_key)
 		{
@@ -166,9 +167,24 @@ void position_management(Player *p1, Player *p2) {
 				}
 				else//NOTHING
 				{
+					if (custom_pos.y > 0)
+					{
+						ACCESS_SHORT(p1->p, CF_CURRENT_SEQ) = 9;
+					} 
+					if (custom_pos2.y > 0)
+					{
+						ACCESS_SHORT(p2->p, CF_CURRENT_SEQ) = 9;
+					}//ISSUE: find a way to reset the character to a air animation
+
+					if ((custom_pos.x < custom_pos2.x && p1->position.x > p2->position.x)
+						|| (custom_pos.x > custom_pos2.x && p1->position.x < p2->position.x))
+					{
+						p1->position.xspeed = -p1->position.xspeed;
+					}//ISSUE: save the direction from ground to air reset
+
 					set_position(p1, custom_pos, CONSERVED);
 					set_position(p2, custom_pos2, CONSERVED);
-				}//conserved momentum is killed if you reset the air position from ground
+				}
 			}
 			held_set_key = TRUE;
 		}
@@ -206,10 +222,35 @@ void frameadvantage_count(Player *p1, Player *p2) {
 	}
 }
 
+int hjc_advantage = 0;
+bool hjc_blockstring = FALSE;
+void hjcadvantage_count(Player *p1, Player *p2) {
+	if (p1->current_sequence > 10 && p2->current_sequence > 10 && !hjc_blockstring)
+	{//there was a frame both were acting, we entered a blockstring
+		hjc_advantage = 0;
+		hjc_blockstring = TRUE;
+	}
+	if ((p1->current_sequence >= 200 && p1->current_sequence <= 215) && hjc_blockstring)
+	{//p2 is still blocking, p1 is high air
+		
+		if (p2->current_sequence < 10)
+		{ //if p2 now recovered, we display
+			hjc_blockstring = FALSE;
+
+			if (ACCESS_SHORT(p1->p, CF_ELAPSED_IN_SUBSEQ) < ACCESS_SHORT(p2->p, CF_ELAPSED_IN_SUBSEQ))
+				std::cout << "P1 is [-" << hjc_advantage << "F]" << std::endl << std::endl;
+			else
+				std::cout << "P1 is [+" << hjc_advantage << "F]" << std::endl << std::endl;
+		}
+		++hjc_advantage;
+	}	
+}
+
+
 int isIdle = -1;
 void trademash_count(Player *player)
 {
-	if (player->frameflag & FF_GUARDING) //GUARDING TRUE/FALSE
+	if (player->frameflag & FF_GUARDING || !(player->frameflag & FF_GUARD_AVAILABLE))
 	{
 		if (isIdle != 0)
 		{
@@ -222,6 +263,57 @@ void trademash_count(Player *player)
 	else
 		++isIdle;
 }//Does not work with instantly mashable strings.
+
+#include <bitset>
+
+/* MACROS */
+bool already_CH = FALSE;
+void random_CH(Player *player)
+{/*
+
+		bool var_CH = FALSE;
+		int a = rand() % 2;
+		if (a == 1)
+			var_CH = TRUE;
+		
+		int initial_state = ACCESS_INT(player->framedata, FF_FFLAGS);
+		std::cout << std::bitset<32>(ACCESS_INT(player->framedata, FF_FFLAGS)) << "(" << ACCESS_INT(player->framedata, FF_FFLAGS) << ") > ";
+
+
+		if (!(player->frameflag & FF_CH_ON_HIT) && player->frameflag & FF_GUARD_AVAILABLE)
+		{//if not in CH state already and can guard (to prevent CH mid-combo)
+			if (var_CH && !already_CH)
+			{
+				ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor FF_CH_ON_HIT;
+				already_CH = TRUE;
+			}
+			else if (!var_CH && already_CH)
+			{
+				ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor FF_CH_ON_HIT;
+				already_CH = FALSE;
+			}
+			else if (already_CH)
+			{
+				already_CH = FALSE;
+			}
+			else if (!already_CH)
+			{
+				already_CH = TRUE;
+			}
+		}
+		std::cout << std::bitset<32>(ACCESS_INT(player->framedata, FF_FFLAGS)) << "(" << ACCESS_INT(player->framedata, FF_FFLAGS) << ")" << std::endl;*/
+}
+
+
+void fixed_tech(Player *player)
+{/*
+	if (player->frameflag & FF_DOWN)
+	{
+		ACCESS_INT(player->p, CF_PRESSED_X_AXIS1) = 1;
+		//dstd::cout << ACCESS_INT(player->p, CF_PRESSED_X_AXIS1) << std::endl;
+		ACCESS_INT(player->p, CF_PRESSED_D_1) = 1;
+	}*/
+}
 
 
 /* MISCELLANEOUS */
@@ -262,9 +354,25 @@ void set_spirit(Player *player, short spirit, short delay)
 	ACCESS_SHORT(player->p, CF_SPIRIT_REGEN_DELAY) = delay;
 }
 
-void print_card(Player *player)
+void reset_skills(Player *player)
 {
-	printf("%d ", player->card);//prints the number of cards
+	int nb_skills = 4;
+
+	if (ACCESS_CHAR(player->p, CF_CHARACTER_INDEX) == PATCHOULI)
+		nb_skills = 5;
+
+	if (GetKeyState(savestate_keys.reset_skills) & 0x8000)
+	{
+		for (int i = 0; i < nb_skills; ++i)
+		{
+			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_1 + i) = 0;
+			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_2 + i) = 0;
+		}
+
+		for (int i = nb_skills; i < 32; ++i)
+		{
+			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_1 + i) = -1;
+			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_2 + i) = -1;
+		}
+	}
 }
-
-

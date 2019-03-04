@@ -19,11 +19,12 @@ enum SAVESTATE_MODE {
 };
 
 typedef struct {
-	UINT reset;
-	UINT save;
+	UINT save_pos;
+	UINT reset_pos;
+	UINT reset_skills;
 } Keys;
 
-extern Keys savestate_keys;
+
 
 typedef struct {
 	float x;
@@ -53,6 +54,22 @@ typedef struct {
 } Player;
 
 
+typedef struct {
+	int A;
+	int B;
+	int C;
+	int D;
+	int Sw;
+	int Sp;
+	int Up;
+	int Down;
+	int Left;
+	int Right;
+} Commands;
+
+extern Keys savestate_keys;
+extern Commands commands;
+
 /* UPDATE FUNCTIONS */
 void update_position(Player *);
 void update_playerinfo(Player *, int, int);
@@ -66,9 +83,14 @@ void position_management(Player *, Player *);
 /* FRAMECOUNT FUNCTIONS */
 void trademash_count(Player *);
 void frameadvantage_count(Player *, Player *);
+void hjcadvantage_count(Player *, Player *);
+
+/* MACROS */
+void random_CH(Player *);
+void fixed_tech(Player *);
 
 /* MISCELLANEOUS */
 void state_display(Player *);
 void set_health(Player *, short);
 void set_spirit(Player *, short, short);
-void print_card(Player *);
+void reset_skills(Player *);
