@@ -50,6 +50,7 @@ void update_playerinfo(Player *player, int battleManager, int add_bmgr_px)
 	player->framedata = ACCESS_PTR(player->p, CF_CURRENT_FRAME_DATA);
 	player->frameflag = ACCESS_INT(player->framedata, FF_FFLAGS);
 	player->current_sequence = ACCESS_SHORT(player->p, CF_CURRENT_SEQ);
+	player->elapsed_in_subseq = ACCESS_SHORT(player->p, CF_ELAPSED_IN_SUBSEQ);
 
 	player->card = ACCESS_CHAR(player->p, CF_CARD_SLOTS);
 	player->untech = ACCESS_SHORT(player->p, CF_UNTECH);
@@ -115,8 +116,8 @@ void set_position(Player *player, Position pos, int mode)
 	}
 }
 
-bool held_save_key = FALSE;
-bool held_set_key = FALSE;
+bool held_save_key = false;
+bool held_set_key = false;
 void position_management(Player *p1, Player *p2) {
 	if (GetKeyState(savestate_keys.save_pos) & 0x8000) {
 		if (!held_save_key)
@@ -125,11 +126,11 @@ void position_management(Player *p1, Player *p2) {
 			custom_pos2 = save_checkpoint(p2);
 			printf("Positions saved at: (%f, %f) VS (%f, %f)\n", custom_pos.x, custom_pos.y, custom_pos2.x, custom_pos2.y);
 		}
-		held_save_key = TRUE;
+		held_save_key = true;
 	}
 	else
 	{
-		held_save_key = FALSE;
+		held_save_key = false;
 	}
 
 
@@ -186,31 +187,32 @@ void position_management(Player *p1, Player *p2) {
 					set_position(p2, custom_pos2, CONSERVED);
 				}
 			}
-			held_set_key = TRUE;
+			held_set_key = true;
 		}
 	}
 	else
 	{
-		held_set_key = FALSE;
+		held_set_key = false;
 	}
 }
 
 
 /* FRAMECOUNT */
+//bug to fix: if the opponent stands or crouches back, the f_a gets inverted (yuyuko 3A is -12F, not +12F)
 int frame_advantage = 0;
-bool blockstring = FALSE;
+bool blockstring = false;
 void frameadvantage_count(Player *p1, Player *p2) {
 
 	if (p1->current_sequence > 10 && p2->current_sequence > 10)
 	{
 		frame_advantage = 0;
-		blockstring = TRUE;
+		blockstring = true;
 	}
 	if ((p1->current_sequence < 10 || p2->current_sequence < 10) && blockstring)
 	{
 		if (p1->current_sequence < 10 && p2->current_sequence < 10)
 		{ //both stay on the ground (works)
-			blockstring = FALSE;
+			blockstring = false;
 
 			if (ACCESS_SHORT(p1->p, CF_ELAPSED_IN_SUBSEQ) < ACCESS_SHORT(p2->p, CF_ELAPSED_IN_SUBSEQ))
 				std::cout << "P1 is -" << frame_advantage << "F" << std::endl << std::endl;
@@ -223,19 +225,19 @@ void frameadvantage_count(Player *p1, Player *p2) {
 }
 
 int hjc_advantage = 0;
-bool hjc_blockstring = FALSE;
+bool hjc_blockstring = false;
 void hjcadvantage_count(Player *p1, Player *p2) {
 	if (p1->current_sequence > 10 && p2->current_sequence > 10 && !hjc_blockstring)
 	{//there was a frame both were acting, we entered a blockstring
 		hjc_advantage = 0;
-		hjc_blockstring = TRUE;
+		hjc_blockstring = true;
 	}
-	if ((p1->current_sequence >= 200 && p1->current_sequence <= 215) && hjc_blockstring)
+	if ((p1->current_sequence != 204 && p1->current_sequence >= 201 && p1->current_sequence <= 215) && hjc_blockstring)
 	{//p2 is still blocking, p1 is high air
 		
 		if (p2->current_sequence < 10)
 		{ //if p2 now recovered, we display
-			hjc_blockstring = FALSE;
+			hjc_blockstring = false;
 
 			if (ACCESS_SHORT(p1->p, CF_ELAPSED_IN_SUBSEQ) < ACCESS_SHORT(p2->p, CF_ELAPSED_IN_SUBSEQ))
 				std::cout << "P1 is [-" << hjc_advantage << "F]" << std::endl << std::endl;
@@ -255,53 +257,110 @@ void trademash_count(Player *player)
 		if (isIdle != 0)
 		{
 			++isIdle;
-			if (isIdle <= 60)
-				std::cout << "Trade-mashable in " << isIdle << "F" << std::endl;
+			if (isIdle <= 30)
+				std::cout << "Trademash: " << isIdle << "F" << std::endl;
 		}
 		isIdle = 0;
 	}
 	else
 		++isIdle;
-}//Does not work with instantly mashable strings.
+}
 
-#include <bitset>
+
+
+bool untight_nextframe = false;
+bool untight_check(Player *player)
+{
+	//RIGHTBLOCK
+	if (player->elapsed_in_subseq == VERYLIGHT_RB_TIME - 1 && (player->current_sequence == STAND_VL_RB || player->current_sequence == CROUCH_VL_RB))
+		return true;
+	else if (player->elapsed_in_subseq == LIGHT_RB_TIME - 1 && (player->current_sequence == STAND_L_RB || player->current_sequence == CROUCH_L_RB))
+		return true;
+	else if (player->elapsed_in_subseq == MEDIUM_RB_TIME - 1 && (player->current_sequence == STAND_M_RB || player->current_sequence == CROUCH_M_RB))
+		return true;
+	else if (player->elapsed_in_subseq == HEAVY_RB_TIME - 1 && (player->current_sequence == STAND_H_RB || player->current_sequence == CROUCH_H_RB))
+		return true;
+	//AIRBLOCK
+	else if (player->elapsed_in_subseq == AIR_B_TIME - 1 && player->current_sequence == AIRBLOCK)
+		return true;
+	//WRONGBLOCK
+	else if (player->elapsed_in_subseq == VERYLIGHT_WB_TIME - 1 && player->current_sequence == STAND_VL_WB)
+		return true;
+	else if (player->elapsed_in_subseq == LIGHT_WB_TIME - 1 && (player->current_sequence == STAND_L_WB || player->current_sequence == CROUCH_L_WB))
+		return true;
+	else if (player->elapsed_in_subseq == MEDIUM_WB_TIME - 1 && (player->current_sequence == STAND_M_WB || player->current_sequence == CROUCH_M_WB))
+		return true;
+	else
+		return false;
+}
+
+void is_tight(Player *player)
+{
+	if (player->current_sequence >= 143 && player->current_sequence <= 165)
+	{
+		if (untight_nextframe)
+		{ //bug in which the first frame of the first hit is considered untight
+			std::cout << "Trademash: instant-F" << std::endl;
+		}
+
+		untight_nextframe = false;
+		untight_nextframe = untight_check(player);
+	}
+	else
+	{
+		untight_nextframe = false;
+	}
+}
 
 /* MACROS */
-bool already_CH = FALSE;
+bool already_CH = false;
 void random_CH(Player *player)
-{/*
+{
 
-		bool var_CH = FALSE;
+	if (GetAsyncKeyState(savestate_keys.randomCH) & 1)
+		toggle_keys.randomCH = !toggle_keys.randomCH;
+	
+	if (toggle_keys.randomCH)
+	{
+		bool CH = false;
 		int a = rand() % 2;
 		if (a == 1)
-			var_CH = TRUE;
-		
-		int initial_state = ACCESS_INT(player->framedata, FF_FFLAGS);
-		std::cout << std::bitset<32>(ACCESS_INT(player->framedata, FF_FFLAGS)) << "(" << ACCESS_INT(player->framedata, FF_FFLAGS) << ") > ";
+			CH = true;
 
 
-		if (!(player->frameflag & FF_CH_ON_HIT) && player->frameflag & FF_GUARD_AVAILABLE)
+		if (player->frameflag & FF_GUARD_AVAILABLE)
 		{//if not in CH state already and can guard (to prevent CH mid-combo)
-			if (var_CH && !already_CH)
+			if (!already_CH)
 			{
-				ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor FF_CH_ON_HIT;
-				already_CH = TRUE;
-			}
-			else if (!var_CH && already_CH)
-			{
-				ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor FF_CH_ON_HIT;
-				already_CH = FALSE;
+				if (CH)
+				{
+					ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor 64;
+					already_CH = true;
+				}
+				else if (!CH)
+				{
+					already_CH = false;
+				}
 			}
 			else if (already_CH)
 			{
-				already_CH = FALSE;
-			}
-			else if (!already_CH)
-			{
-				already_CH = TRUE;
+				if (!CH)
+				{
+					ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor 64;
+					already_CH = false;
+				}
+				else if (CH)
+				{
+					already_CH = true;
+				}
 			}
 		}
-		std::cout << std::bitset<32>(ACCESS_INT(player->framedata, FF_FFLAGS)) << "(" << ACCESS_INT(player->framedata, FF_FFLAGS) << ")" << std::endl;*/
+	}
+	else if (ACCESS_INT(player->framedata, FF_FFLAGS) & FF_CH_ON_HIT)
+	{
+		ACCESS_INT(player->framedata, FF_FFLAGS) = ACCESS_INT(player->framedata, FF_FFLAGS) xor 64;
+		already_CH = false;
+	}
 }
 
 
@@ -324,23 +383,36 @@ void state_display(Player *player)
 	int blue = -1;
 	int green = -1;
 
-	if (player->frameflag & FF_GRAZE)
-		transparency = 100;
-	if (player->frameflag & FF_MELEE_INVINCIBLE)
-	{
-		red = 60;
-		green = 60;
-	}
-	else if (player->frameflag & FF_CH_ON_HIT)
-	{
-		blue = 60;
-		green = 60;
-	}
+	if (GetAsyncKeyState(savestate_keys.display_states) & 1)
+		toggle_keys.display_states = !toggle_keys.display_states;
 
-	ACCESS_CHAR(player->p, CF_COLOR_R) = red;
-	ACCESS_CHAR(player->p, CF_COLOR_B) = blue;
-	ACCESS_CHAR(player->p, CF_COLOR_G) = green;
-	ACCESS_CHAR(player->p, CF_COLOR_A) = transparency;
+	if (toggle_keys.display_states)
+	{
+		if (player->frameflag & FF_GRAZE)
+			transparency = 100;
+		if (player->frameflag & FF_MELEE_INVINCIBLE)
+		{
+			red = 60;
+			green = 60;
+		}
+		else if (player->frameflag & FF_CH_ON_HIT)
+		{
+			blue = 60;
+			green = 60;
+		}
+
+		ACCESS_CHAR(player->p, CF_COLOR_R) = red;
+		ACCESS_CHAR(player->p, CF_COLOR_B) = blue;
+		ACCESS_CHAR(player->p, CF_COLOR_G) = green;
+		ACCESS_CHAR(player->p, CF_COLOR_A) = transparency;
+	}
+	else
+	{
+		ACCESS_CHAR(player->p, CF_COLOR_R) = red;
+		ACCESS_CHAR(player->p, CF_COLOR_B) = blue;
+		ACCESS_CHAR(player->p, CF_COLOR_G) = green;
+		ACCESS_CHAR(player->p, CF_COLOR_A) = transparency;
+	}
 }
 
 void set_health(Player *player, short health)

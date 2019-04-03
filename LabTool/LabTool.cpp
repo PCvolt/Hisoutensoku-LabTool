@@ -58,7 +58,8 @@ static DWORD s_origCBattleManager_Size;
 
 static char s_profilePath[1024 + MAX_PATH];
 Keys savestate_keys;
-Commands commands;
+Toggles toggle_keys;
+//Commands *commands = NULL;
 
 void OpenConsole() {
 	if (AllocConsole()) {
@@ -75,19 +76,34 @@ void OpenConsole() {
 	}
 	std::cout << "Console allocated:" << std::endl;
 }
-
 /*
-void register_keymap(INPUT *inputs, int inputCount, int *keymap, int keymapIndex) {
-
-
-
-	inputs[inputCount].type = INPUT_KEYBOARD;
-	inputs[inputCount].ki.wVk = 0;
-	inputs[inputCount].ki.wScan = keymap[keymapIndex];
-	inputs[inputCount].ki.dwFlags =
-	inputs[inputCount].ki.time = 0;
-	inputs[inputCount].ki.dwExtraInfo = 0;
+void readKey(int keyCommand, int keymapIndex) {
+	if (keyCommand == 1 || keyCommand == -1) {
+		inputs[inputCount].type = INPUT_KEYBOARD;
+		inputs[inputCount].ki.wVk = 0;
+		inputs[inputCount].ki.wScan = keymap[keymapIndex];
+		inputs[inputCount].ki.dwFlags = KEYEVENTF_SCANCODE | ((keyCommand == -1) ? KEYEVENTF_KEYUP : 0);
+		inputs[inputCount].ki.time = 0;
+		inputs[inputCount].ki.dwExtraInfo = 0;
+		inputCount++;
+	}
 }*/
+/*
+void ProcessKeys (INPUT *inputs, int& inputCount, Commands *commands, int* keymap) {
+	
+	readKey(inputs, &inputCount, commands->Up, KeymapIndex::Up);
+	readKey(inputs, &inputCount, commands->Down, KeymapIndex::Down);
+	readKey(inputs, &inputCount, commands->Left, KeymapIndex::Left);
+	readKey(inputs, &inputCount, commands->Right, KeymapIndex::Right);
+	readKey(inputs, &inputCount, commands->A, KeymapIndex::A);
+	readKey(inputs, &inputCount, commands->B, KeymapIndex::B);
+	readKey(inputs, &inputCount, commands->C, KeymapIndex::C);
+	readKey(inputs, &inputCount, commands->D, KeymapIndex::D);
+	readKey(inputs, &inputCount, commands->Sw, KeymapIndex::Sw);
+	readKey(inputs, &inputCount, commands->Sc, KeymapIndex::SC);
+}
+*/
+
 
 void* __fastcall CBattleManager_OnCreate(void *This) {
 	CBattleManager_Create(This);
@@ -95,11 +111,27 @@ void* __fastcall CBattleManager_OnCreate(void *This) {
 
 	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
 	savestate_keys.reset_pos = ::GetPrivateProfileInt("KEYS", "reset_pos", 0, s_profilePath);
+	savestate_keys.display_states = ::GetPrivateProfileInt("KEYS", "display_states", 0, s_profilePath);
+	savestate_keys.randomCH = ::GetPrivateProfileInt("KEYS", "toggle_randomCH", 0, s_profilePath);
 	savestate_keys.reset_skills = ::GetPrivateProfileInt("KEYS", "reset_skills", 0, s_profilePath);
 
-	int *keymap_p1 = (int *)SWRS_ADDR_1PKEYMAP;
-	int *keymap_p2 = (int *)SWRS_ADDR_2PKEYMAP;
+	toggle_keys.display_states = true;
+	toggle_keys.randomCH = false;
 
+
+	/*
+	int inputCount = 0;
+	INPUT inputs[2 * 10];
+
+	commands = new Commands();
+	ProcessKeys(inputs, 0, commands, (int*)SWRS_ADDR_1PKEYMAP);
+	ProcessKeys(inputs, 10, commands, (int*)SWRS_ADDR_2PKEYMAP);
+	if (inputCount > 0) {
+		if (GetForegroundWindow() == windowHandle) {
+			SendInput(inputCount, inputs, sizeof(INPUT));
+		}
+	}
+	*/
 	return This;
 }
 
@@ -125,13 +157,16 @@ int __fastcall CBattleManager_OnProcess(void *This) {
 		trademash_count(&p2);
 		hjcadvantage_count(&p1, &p2);
 		frameadvantage_count(&p1, &p2);
+
 		random_CH(&p2);
 		fixed_tech(&p1);
+		reset_skills(&p1);
+		reset_skills(&p2);
 
 		state_display(&p1);
 		state_display(&p2);
-		reset_skills(&p1);
-		reset_skills(&p2);
+
+		is_tight(&p2);
 	}
 
 	return ret;
@@ -191,7 +226,6 @@ extern "C" {
 /*
 TODO LIST:
 	Macros:
-*Random CH
 *Fixed tech 4/5/6
 *Random tech
 *BE after X hits toggle
@@ -199,7 +233,7 @@ TODO LIST:
 *(same as above, but for wake-up as well)
 
 	Resource options:
-Precise spirit setting
+Precise health&spirit display
 
 	Input display options:
 *Xrd movement display (in my wet dreams)

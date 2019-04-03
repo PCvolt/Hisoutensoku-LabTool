@@ -19,11 +19,11 @@
 #define CF_SCALE_X 0x11C // float
 #define CF_SCALE_Y 0x120 // float
 #define CF_Z_ROTATION 0x12C // float
-#define CF_CURRENT_SEQ 0x13C // short
-#define CF_CURRENT_SUBSEQ 0x13E // short 
-#define CF_CURRENT_FRAME 0x140 // short
+#define CF_CURRENT_SEQ 0x13C // short		//Displays in which animation sequence you are
+#define CF_CURRENT_SUBSEQ 0x13E // short	//???
+#define CF_CURRENT_FRAME 0x140 // short		//???
 #define CF_ELAPSED_IN_FRAME 0x142 // short
-#define CF_ELAPSED_IN_SUBSEQ 0x144 // int
+#define CF_ELAPSED_IN_SUBSEQ 0x144 // int	//Displays at which frame of the anim seq you are at
 #define CF_CURRENT_FRAME_DATA 0x158 // ptr
 #define CF_CURRENT_SEQ_FRAMES 0x15C // ptr
 #define CF_ENEMY 0x170 // ptr

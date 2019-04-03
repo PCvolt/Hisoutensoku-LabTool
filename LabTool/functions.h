@@ -1,16 +1,41 @@
 #pragma once
-#define LEFT_CORNER_P1 79.0f
-#define	LEFT_NEAR_P1 379.0f
-#define	MIDSCREEN_P1 601.0f
-#define	RIGHT_NEAR_P1 901.0f
+#define LEFT_CORNER_P1	79.0f
+#define	LEFT_NEAR_P1	379.0f
+#define	MIDSCREEN_P1	601.0f
+#define	RIGHT_NEAR_P1	901.0f
 #define	RIGHT_CORNER_P1 1201.0f
 
-#define	LEFT_CORNER_P2 40.0f
-#define	LEFT_NEAR_P2 340.0f
-#define	MIDSCREEN_P2 640.0f
-#define	RIGHT_NEAR_P2 940.0f
-#define	RIGHT_CORNER_P2 1201.0f
+#define	LEFT_CORNER_P2	40.0f
+#define	LEFT_NEAR_P2	340.0f
+#define	MIDSCREEN_P2	640.0f
+#define	RIGHT_NEAR_P2	940.0f
+#define	RIGHT_CORNER_P2 1240.0f
 
+#define VERYLIGHT_RB_TIME	10
+#define LIGHT_RB_TIME		16
+#define MEDIUM_RB_TIME		22
+#define HEAVY_RB_TIME		28
+#define VERYLIGHT_WB_TIME	12
+#define LIGHT_WB_TIME		20
+#define MEDIUM_WB_TIME		28
+#define AIR_B_TIME			20
+
+#define GUARDCRUSH		143 
+#define AIR_GUARDCRUSH	145 
+#define STAND_VL_RB		150 
+#define STAND_L_RB		151 
+#define STAND_M_RB		152 
+#define STAND_H_RB		153 
+#define CROUCH_VL_RB	154 
+#define CROUCH_L_RB		155 
+#define CROUCH_M_RB		156 
+#define CROUCH_H_RB		157 
+#define AIRBLOCK		158 
+#define STAND_VL_WB		159 
+#define STAND_L_WB		160 
+#define STAND_M_WB		161 
+#define CROUCH_L_WB		164 
+#define CROUCH_M_WB		165 
 
 enum SAVESTATE_MODE {
 	NONE,
@@ -21,9 +46,18 @@ enum SAVESTATE_MODE {
 typedef struct {
 	UINT save_pos;
 	UINT reset_pos;
+	UINT display_states;
+	UINT randomCH;
 	UINT reset_skills;
 } Keys;
 
+typedef struct {
+	bool save_pos;
+	bool reset_pos;
+	bool display_states;
+	bool randomCH;
+	bool reset_skills;
+} Toggles;
 
 
 typedef struct {
@@ -43,8 +77,8 @@ typedef struct {
 
 	void* framedata;
 	int frameflag;
-	short current_frame;
 	short current_sequence;
+	short elapsed_in_subseq;
 
 	short health;
 	short spirit;
@@ -60,7 +94,7 @@ typedef struct {
 	int C;
 	int D;
 	int Sw;
-	int Sp;
+	int Sc;
 	int Up;
 	int Down;
 	int Left;
@@ -68,6 +102,7 @@ typedef struct {
 } Commands;
 
 extern Keys savestate_keys;
+extern Toggles toggle_keys;
 extern Commands commands;
 
 /* UPDATE FUNCTIONS */
@@ -84,6 +119,8 @@ void position_management(Player *, Player *);
 void trademash_count(Player *);
 void frameadvantage_count(Player *, Player *);
 void hjcadvantage_count(Player *, Player *);
+bool untight_check(Player *);
+void is_tight(Player *);
 
 /* MACROS */
 void random_CH(Player *);
