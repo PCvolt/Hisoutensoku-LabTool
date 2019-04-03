@@ -24,3 +24,6 @@ Touhou 12.3 - Hisoutensoku: SWRSToys module for a better labbing experience
 ## THE CODE
 Any help is welcome.
 Use Visual Studio for compilation as .dll.
+
+### KNOWN BUGS
+- yuyuko 3Arb against standing is displayed as +12F while she is -12F. 
