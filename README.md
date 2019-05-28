@@ -1,6 +1,6 @@
 # Hisoutensoku-LabTool
 ## DOWNLOAD and INSTALLATION
-Download here: https://www.mediafire.com/file/tzzaa0vxm19633y/LabTool.rar/file
+Download here: https://github.com/PCvolt/Hisoutensoku-LabTool/archive/1.0.zip
 
 1. Create a `LabTool` folder under the `C:\...\Touhou 12.3 - Hisoutensoku\Modules`, and put the downloaded files.
 2. In the root folder of Hisoutensoku, open `SWRSToys.ini` and add a line `LabTool = Modules/LabTool/LabTool.dll`.
