@@ -11,6 +11,7 @@
 #define	RIGHT_NEAR_P2	940.0f
 #define	RIGHT_CORNER_P2 1240.0f
 
+// Very Light - Light - Medium - Heavy (shifted compared to the usual notations)
 #define VERYLIGHT_RB_TIME	10
 #define LIGHT_RB_TIME		16
 #define MEDIUM_RB_TIME		22
@@ -37,28 +38,92 @@
 #define CROUCH_L_WB		164 
 #define CROUCH_M_WB		165 
 
+#define FORWARD_TECH	197 
+#define BACKWARD_TECH	198 
+#define NEUTRAL_TECH	199 
+
+/* Keymaps of both players */
+#define SWRS_ADDR_1PKEYMAP 0x00898940
+#define SWRS_ADDR_2PKEYMAP 0x0089912C
+
 enum SAVESTATE_MODE {
 	NONE,
 	CONSERVED,
 	CONTINUED
 };
 
+namespace KeymapIndex { enum KeymapIndex : int { up, down, left, right, A, B, C, D, sw, sc }; }
+enum tech_select : int { neutral, left, right, random };
+enum reversal_select : int { nothing, jump, highjump, backdash, mash4A,  d623B, spellcard };
+enum first_select : int { noblocking, standing, crouching };
+enum BE_select : int { noBE, BEdown, BEdownside, BEside, BEback };
+
+/* KEYS */
 typedef struct {
 	UINT save_pos;
 	UINT reset_pos;
 	UINT display_states;
 	UINT randomCH;
 	UINT reset_skills;
+	UINT tech_macro;
+	UINT wakeup_macro;
+	UINT firstblock_macro;
+	UINT BE_macro;
 } Keys;
 
+
 typedef struct {
+	bool display_states;
 	bool save_pos;
 	bool reset_pos;
-	bool display_states;
 	bool randomCH;
 	bool reset_skills;
-} Toggles;
+	int tech_macro;
+	int wakeup_macro;
+	int firstblock_macro;
+	int BE_macro;
+} Toggle_key;
 
+typedef struct {
+	bool set_pos;
+	bool save_pos;
+	bool tech_macro;
+	bool wakeup_macro;
+	bool firstblock_macro;
+	bool BE_macro;
+} Held_key;
+
+/* PLAYER */
+typedef struct {
+	int frame_advantage;
+	bool blockstring;
+	int hjc_advantage;
+	bool hjc_blockstring;
+	int isIdle;
+	bool untight_nextframe;
+
+	bool already_CH;
+	int tech_mode;
+	int wakeup_mode;
+	int firstblock_mode;
+	int BE_mode;
+
+	int wakeup_count_p1;
+	int wakeup_count_p2;
+} Misc_state;
+
+typedef struct {
+	int up;
+	int down;
+	int left;
+	int right;
+	int A;
+	int B;
+	int C;
+	int D;
+	int sw;
+	int sc;
+} Commands;
 
 typedef struct {
 	float x;
@@ -66,10 +131,12 @@ typedef struct {
 	float xspeed;
 	float yspeed;
 	float gravity;
+	int direction;
 } Position;
 
 typedef struct {
 	void *p;
+	int index;
 
 	int x_pressed;//left is -, right is +
 	int y_pressed;//down is -, up is +
@@ -87,23 +154,11 @@ typedef struct {
 	char card;
 } Player;
 
-
-typedef struct {
-	int A;
-	int B;
-	int C;
-	int D;
-	int Sw;
-	int Sc;
-	int Up;
-	int Down;
-	int Left;
-	int Right;
-} Commands;
-
 extern Keys savestate_keys;
-extern Toggles toggle_keys;
-extern Commands commands;
+extern Toggle_key toggle_keys;
+extern Held_key held_keys;
+extern Misc_state misc_states;
+
 
 /* UPDATE FUNCTIONS */
 void update_position(Player *);
@@ -116,7 +171,7 @@ void set_position(Player *, Position, int);
 void position_management(Player *, Player *);
 
 /* FRAMECOUNT FUNCTIONS */
-void trademash_count(Player *);
+void gap_count(Player *);
 void frameadvantage_count(Player *, Player *);
 void hjcadvantage_count(Player *, Player *);
 bool untight_check(Player *);
@@ -124,7 +179,10 @@ void is_tight(Player *);
 
 /* MACROS */
 void random_CH(Player *);
-void fixed_tech(Player *);
+void block_1st_hit(Player *, int *);
+void send_inputs(Commands, Commands);
+void tech(Player *, int *, int *);
+void macros(Player *, Player *);
 
 /* MISCELLANEOUS */
 void state_display(Player *);

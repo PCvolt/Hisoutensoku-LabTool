@@ -1,16 +1,16 @@
 #pragma once
 /* Character class. */
-#define CF_UNKNOWN 0x7D0 // short
-#define CF_X_POS 0x0EC // float
-#define CF_Y_POS 0x0F0 // float
-#define CF_X_SPEED 0x0F4 // float
-#define CF_Y_SPEED 0x0F8 // float
-#define CF_GRAVITY 0x100 // float
-#define CF_DIR 0x104 // char
-#define CF_COLOR_B 0x110 // uchar
-#define CF_COLOR_G 0x111 // uchar
-#define CF_COLOR_R 0x112 // uchar
-#define CF_COLOR_A 0x113 // uchar
+#define CF_UNKNOWN 0x7D0 // short		// Dash time (?)
+#define CF_X_POS 0x0EC // float			// x pos
+#define CF_Y_POS 0x0F0 // float			// y pos
+#define CF_X_SPEED 0x0F4 // float		// x speed
+#define CF_Y_SPEED 0x0F8 // float		// y speed
+#define CF_GRAVITY 0x100 // float		// gravity
+#define CF_DIR 0x104 // char			// direction
+#define CF_COLOR_B 0x110 // uchar		// blue
+#define CF_COLOR_G 0x111 // uchar		// green
+#define CF_COLOR_R 0x112 // uchar		// red
+#define CF_COLOR_A 0x113 // uchar		// alpha
 #define CF_SHADER_TYPE 0x114 // int
 #define CF_SHADER_COLOR_B 0x118 // uchar
 #define CF_SHADER_COLOR_G 0x119 // uchar
@@ -38,15 +38,15 @@
 #define CF_ATTACK_BOXES_ROT 0x320 // altbox[5]
 #define CF_HURT_BOXES_ROT 0x334 // altbox[5]
 #define CF_CHARACTER_INDEX 0x34C // char
-#define CF_PLAYER_INDEX 0x350 // char
+#define CF_PLAYER_INDEX 0x350 // char		// index of the character in the enum below
 #define CF_BULLET_COUNTER 0x36C // short
-#define CF_CURRENT_SPIRIT 0x49E // short
+#define CF_CURRENT_SPIRIT 0x49E // short	// spirit from 0 to 1000 (divided in 5 orbs)
 #define CF_SPIRIT_REGEN_DELAY 0x4A2 // short
-#define CF_TIME_STOP 0x4A8 // short
+#define CF_TIME_STOP 0x4A8 // short			//blockstun/hitstun ???
 #define CF_UNTECH 0x4BA // short
 #define CF_DAMAGE_LIMIT 0x4BE // short
 #define CF_CARD_SLOTS 0x5E6 // char
-#define CF_CARDS_ARRAY 0x5E8 // ptr
+#define CF_CARDS_ARRAY 0x5E8 // ptr			//register the array and load it ?
 #define CF_SKILL_LEVELS_1 0x6A4 // char[32]
 #define CF_SKILL_LEVELS_2 0x6C4 // char[32]
 #define CF_OBJ_LIST_MGR 0x6F8 // ptr

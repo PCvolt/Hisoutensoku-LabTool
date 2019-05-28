@@ -35,8 +35,8 @@ __declspec(selectany) const BYTE TARGET_HASH[16] =
 	// ver1.10a
 	0xdf, 0x35, 0xd1, 0xfb, 0xc7, 0xb5, 0x83, 0x31, 0x7a, 0xda, 0xbe, 0x8c, 0xd9, 0xf5, 0x3b, 0x2e
 };
-#define SWRS_ADDR_1PKEYMAP 0x00898940
-#define SWRS_ADDR_2PKEYMAP 0x0089912C
+
+
 
 #define CBattleManager_Create(p) \
   Ccall(p, s_origCBattleManager_OnCreate, void*, ())()
@@ -58,8 +58,9 @@ static DWORD s_origCBattleManager_Size;
 
 static char s_profilePath[1024 + MAX_PATH];
 Keys savestate_keys;
-Toggles toggle_keys;
-//Commands *commands = NULL;
+Toggle_key toggle_keys;
+Held_key held_keys;
+Misc_state misc_states;
 
 void OpenConsole() {
 	if (AllocConsole()) {
@@ -76,62 +77,38 @@ void OpenConsole() {
 	}
 	std::cout << "Console allocated:" << std::endl;
 }
-/*
-void readKey(int keyCommand, int keymapIndex) {
-	if (keyCommand == 1 || keyCommand == -1) {
-		inputs[inputCount].type = INPUT_KEYBOARD;
-		inputs[inputCount].ki.wVk = 0;
-		inputs[inputCount].ki.wScan = keymap[keymapIndex];
-		inputs[inputCount].ki.dwFlags = KEYEVENTF_SCANCODE | ((keyCommand == -1) ? KEYEVENTF_KEYUP : 0);
-		inputs[inputCount].ki.time = 0;
-		inputs[inputCount].ki.dwExtraInfo = 0;
-		inputCount++;
-	}
-}*/
-/*
-void ProcessKeys (INPUT *inputs, int& inputCount, Commands *commands, int* keymap) {
-	
-	readKey(inputs, &inputCount, commands->Up, KeymapIndex::Up);
-	readKey(inputs, &inputCount, commands->Down, KeymapIndex::Down);
-	readKey(inputs, &inputCount, commands->Left, KeymapIndex::Left);
-	readKey(inputs, &inputCount, commands->Right, KeymapIndex::Right);
-	readKey(inputs, &inputCount, commands->A, KeymapIndex::A);
-	readKey(inputs, &inputCount, commands->B, KeymapIndex::B);
-	readKey(inputs, &inputCount, commands->C, KeymapIndex::C);
-	readKey(inputs, &inputCount, commands->D, KeymapIndex::D);
-	readKey(inputs, &inputCount, commands->Sw, KeymapIndex::Sw);
-	readKey(inputs, &inputCount, commands->Sc, KeymapIndex::SC);
-}
-*/
 
 
 void* __fastcall CBattleManager_OnCreate(void *This) {
 	CBattleManager_Create(This);
 	std::cout << "OnCreate Called" << std::endl;
 
+	/* .INI */
 	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
 	savestate_keys.reset_pos = ::GetPrivateProfileInt("KEYS", "reset_pos", 0, s_profilePath);
 	savestate_keys.display_states = ::GetPrivateProfileInt("KEYS", "display_states", 0, s_profilePath);
 	savestate_keys.randomCH = ::GetPrivateProfileInt("KEYS", "toggle_randomCH", 0, s_profilePath);
 	savestate_keys.reset_skills = ::GetPrivateProfileInt("KEYS", "reset_skills", 0, s_profilePath);
 
-	toggle_keys.display_states = true;
+	savestate_keys.tech_macro = ::GetPrivateProfileInt("KEYS", "tech_macro", 0, s_profilePath);
+	savestate_keys.wakeup_macro = ::GetPrivateProfileInt("KEYS", "wakeup_macro", 0, s_profilePath);
+	savestate_keys.firstblock_macro = ::GetPrivateProfileInt("KEYS", "firstblock_macro", 0, s_profilePath);
+	savestate_keys.BE_macro = ::GetPrivateProfileInt("KEYS", "BE_macro", 0, s_profilePath);
+
+	held_keys = { false };
+	toggle_keys.display_states = false;
 	toggle_keys.randomCH = false;
 
+	misc_states.frame_advantage = 0;
+	misc_states.blockstring = false;
+	misc_states.hjc_advantage = 0;
+	misc_states.hjc_blockstring = false;
+	misc_states.isIdle = -1;
+	misc_states.untight_nextframe = false;
+	misc_states.already_CH = false;
+	misc_states.wakeup_count_p1 = 0;
+	misc_states.wakeup_count_p2 = 0;
 
-	/*
-	int inputCount = 0;
-	INPUT inputs[2 * 10];
-
-	commands = new Commands();
-	ProcessKeys(inputs, 0, commands, (int*)SWRS_ADDR_1PKEYMAP);
-	ProcessKeys(inputs, 10, commands, (int*)SWRS_ADDR_2PKEYMAP);
-	if (inputCount > 0) {
-		if (GetForegroundWindow() == windowHandle) {
-			SendInput(inputCount, inputs, sizeof(INPUT));
-		}
-	}
-	*/
 	return This;
 }
 
@@ -140,13 +117,14 @@ void __fastcall CBattleManager_OnRender(void *This) {
 }
 
 
+
 int __fastcall CBattleManager_OnProcess(void *This) {
 	int ret;
 	ret = CBattleManager_Process(This);
 	int battleManager = ACCESS_INT(ADDR_BATTLE_MANAGER, 0);
 
 
-	if (g_mainMode == SWRSMODE_VSPLAYER || g_mainMode == SWRSMODE_PRACTICE)
+	if ((g_mainMode == SWRSMODE_VSPLAYER || g_mainMode == SWRSMODE_PRACTICE) && g_subMode != SWRSSUBMODE_REPLAY)
 	{
 		Player p1;
 		Player p2;
@@ -154,19 +132,20 @@ int __fastcall CBattleManager_OnProcess(void *This) {
 		update_playerinfo(&p2, battleManager, ADDR_BMGR_P2);
 
 		position_management(&p1, &p2);
-		trademash_count(&p2);
+		gap_count(&p2);
 		hjcadvantage_count(&p1, &p2);
 		frameadvantage_count(&p1, &p2);
+		is_tight(&p2);
 
 		random_CH(&p2);
-		fixed_tech(&p1);
+		macros(&p1, &p2);
+		
 		reset_skills(&p1);
 		reset_skills(&p2);
 
+
 		state_display(&p1);
 		state_display(&p2);
-
-		is_tight(&p2);
 	}
 
 	return ret;
@@ -224,30 +203,24 @@ extern "C" {
 //https://stackoverflow.com/a/8145349
 
 /*
+find a better way for buttons for:
+HWND windowHandle = FindWindowEx(NULL, NULL, "th123_110a", NULL);
+
 TODO LIST:
 	Macros:
-*Fixed tech 4/5/6
-*Random tech
-*BE after X hits toggle
-*Reversal options after X hits, either Dash, HJ, or invincible attack
-*(same as above, but for wake-up as well)
+wakeup options but after x blocks
 
 	Resource options:
-Precise health&spirit display
+Precise health&spirit display (d3dx9)
 
 	Input display options:
-*Xrd movement display (in my wet dreams)
-*Change the position of that input viewer would be nice
-*Display the attack (such as 6A, 22B, 5AAA...)
+*Xrd movement display (in my wet dreams) (d3dx9)
+*Change the position of that input viewer would be nice for a nearer future
+*Display the attack (such as 6A, 22B, 5AAA...) ?
 *Combo Recipe
 
 	Cards related options:
 *Decks retained when positions are reset so you don't need to flip through meter again
-*choosing what level of skill you want
-*A way to start training with alts in your deck already on(probably impossible, but it would be nice)
-
-	Weather options:
-Set timer for incoming weather or ending weather
 
 	Character specific options:
 *Sanae packet selection

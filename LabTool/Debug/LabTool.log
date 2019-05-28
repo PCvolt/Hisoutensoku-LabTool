@@ -1,5 +1,2 @@
 ﻿  functions.cpp
-c:\users\paul\source\repos\labtool\labtool\functions.cpp(2): warning C4603: 'SWRS_USES_HASH': macro is not defined or definition is different after precompiled header use
-  c:\users\paul\source\repos\labtool\labtool\functions.cpp(2): note: Add macro to precompiled header instead of defining here
-  c:\users\paul\source\repos\labtool\labtool\functions.cpp(3): note: use of precompiled header
   LabTool.vcxproj -> C:\Users\Paul\source\repos\LabTool\Debug\LabTool.dll
