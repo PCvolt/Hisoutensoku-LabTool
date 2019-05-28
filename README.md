@@ -10,12 +10,21 @@ Download here: https://www.mediafire.com/file/tzzaa0vxm19633y/LabTool.rar/file
 Touhou 12.3 - Hisoutensoku: SWRSToys module for a better labbing experience
 
 ### STATES AND POSITIONS
-- Display of **grazing** in *transparent*, **CH** in *red*, **invulnerability** in *blue* (do not trust it for DP moves, as they are strangely hardcoded).
+- Display of **grazing** in *transparent*, **CH** in *red*, **invulnerability** in *blue* (do not trust it for DP moves, as they are strangely hardcoded), **guard unavailable** in *purple*.
 - **Position management**: 5 hardcoded positions + 1 position customizable with the save key, press 4, 1, 2, 3, 6 or 5 with the reset key. You can set your own keys in the .ini file.
 ### FRAMEDATA (Displayed on windows console)
 - **Gap time** in a blockstring and between two hits. If nothing is displayed, the string is tight, else, it is safely mashable by the amount displayed on the console.
 - **Frame advantage**: both characters must be on ground for the result to be displayed.
 - **Highjump cancel advantage**: p2 remains on the ground while p1 must hjc for the result to be displayed.
+
+### AUTOMATED MACROS (Work in Progress)
+Only available in VS Player. Make sure to set two different keymappings to player 1 and player 2. Player 2 will do the following:
+- tech (neutral, left, right, random)
+- wakeup options (nothing, jump, highjump, backdash(not functional), mash4A, 623B, card)
+- block first hit only (no block, block high, block low)
+- BE on first block (no BE, BE2, BE1, (j)BE6, (j)BE4)
+
+Please DO REPORT bugs to me.
 
 ### MISCELLANEOUS
 - **Random CH** with a key customizable in the .ini, toggle on and off a random CH state to train CH combos on reaction. Untoggle the State Display for more realism.
