@@ -35,4 +35,5 @@ Any help is welcome.
 Use Visual Studio for compilation as .dll.
 
 ### KNOWN BUGS
-- yuyuko 3Arb against standing is displayed as +12F while she is -12F. 
+- yuyuko 3Arb against standing is displayed as +12F while she is -12F.
+- suika crouch in corner, youmu d22 is displayed as -17, but if youmu holds a direction she is displayed as +18.
