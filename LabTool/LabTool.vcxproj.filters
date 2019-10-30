@@ -15,36 +15,36 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="src\targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="src\address.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fields.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\fields.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="swrs.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\functions.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="address.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\stdafx.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="functions.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\swrs.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="src\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LabTool.cpp">
+    <ClCompile Include="src\functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="dllmain.cpp">
+    <ClCompile Include="src\LabTool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="functions.cpp">
+    <ClCompile Include="src\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
