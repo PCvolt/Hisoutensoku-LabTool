@@ -62,7 +62,7 @@ enum first_select : int { noblocking, standing, crouching };
 enum BE_select : int { noBE, BEdown, BEdownside, BEside, BEback };
 
 /* KEYS */
-typedef struct {
+struct Keys {
 	UINT save_pos;
 	UINT reset_pos;
 	UINT display_states;
@@ -72,32 +72,31 @@ typedef struct {
 	UINT wakeup_macro;
 	UINT firstblock_macro;
 	UINT BE_macro;
-} Keys;
+};
 
+struct Toggle_key {
+  bool display_states;
+  bool save_pos;
+  bool reset_pos;
+  bool randomCH;
+  bool reset_skills;
+  int tech_macro;
+  int wakeup_macro;
+  int firstblock_macro;
+  int BE_macro;
+};
 
-typedef struct {
-	bool display_states;
-	bool save_pos;
-	bool reset_pos;
-	bool randomCH;
-	bool reset_skills;
-	int tech_macro;
-	int wakeup_macro;
-	int firstblock_macro;
-	int BE_macro;
-} Toggle_key;
-
-typedef struct {
+struct Held_key {
 	bool set_pos;
 	bool save_pos;
 	bool tech_macro;
 	bool wakeup_macro;
 	bool firstblock_macro;
 	bool BE_macro;
-} Held_key;
+};
 
 /* PLAYER */
-typedef struct {
+struct Misc_state {
 	int frame_advantage;
 	bool blockstring;
 	int hjc_advantage;
@@ -113,9 +112,9 @@ typedef struct {
 
 	int wakeup_count_p1;
 	int wakeup_count_p2;
-} Misc_state;
+};
 
-typedef struct {
+struct Commands {
 	int up;
 	int down;
 	int left;
@@ -126,18 +125,18 @@ typedef struct {
 	int D;
 	int sw;
 	int sc;
-} Commands;
+};
 
-typedef struct {
+struct Position {
 	float x;
 	float y;
 	float xspeed;
 	float yspeed;
 	float gravity;
 	int direction;
-} Position;
+};
 
-typedef struct {
+struct Player {
 	void *p;
 	int index;
 
@@ -155,7 +154,7 @@ typedef struct {
 
 	short untech;
 	char card;
-} Player;
+};
 
 extern Keys savestate_keys;
 extern Toggle_key toggle_keys;
@@ -165,7 +164,7 @@ extern Misc_state misc_states;
 
 /* UPDATE FUNCTIONS */
 void update_position(Player *);
-void update_playerinfo(Player *, int, int);
+void update_playerinfo(Player *, int);
 
 /* POSITION FUNCTIONS */
 Position init_pos(float);

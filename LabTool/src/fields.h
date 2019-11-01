@@ -166,13 +166,13 @@ enum {
 };
 
 /* Accessors. */
-#define ACCESS_FIELD(object, type, offset) (*(type*)(((char*)(object)) + (offset)))
+#define ACCESS_TO_FIELD_IMP(object, offset) (reinterpret_cast<PBYTE>(object) + (offset))
+#define ACCESS_FIELD(object, type, offset) *(reinterpret_cast<type*>(ACCESS_TO_FIELD_IMP(object, offset)))
 #define ACCESS_INT(object, offset) ACCESS_FIELD(object, int, offset)
-#define ACCESS_PTR(object, offset) ((void*)ACCESS_INT(object, offset))
+#define ACCESS_PTR(object, offset) ACCESS_FIELD(object, void*, offset)
 #define ACCESS_CHAR(object, offset) ACCESS_FIELD(object, char, offset)
-#define ACCESS_UCHAR(object, offset) ACCESS_FIELD(object, uchar, offset)
+#define ACCESS_UCHAR(object, offset) ACCESS_FIELD(object, unsigned char, offset)
 #define ACCESS_SHORT(object, offset) ACCESS_FIELD(object, short, offset)
 #define ACCESS_FLOAT(object, offset) ACCESS_FIELD(object, float, offset)
-#define FIELD_ADDRESS(object, offset) ((void*)((offset) + (char*)(object)))
-
+#define FIELD_ADDRESS(object, offset) reinterpret_cast<void*>(ACCESS_TO_FIELD_IMP(object, offset))
 #endif // fields_h__

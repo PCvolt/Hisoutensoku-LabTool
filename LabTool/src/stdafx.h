@@ -16,18 +16,20 @@
 //Standard C++ headers
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
 #include <iostream>
 
 //Standard headers
-#include <array>
 #include <d3d9.h>
 #include <mmsystem.h>
 #include <shlwapi.h>
-#include <sstream>
+#include <array>
 #include <string>
-#include <windows.h>
 
+#define SWRS_USES_HASH
+
+//SWRSToys headers
+#include "fields.h"
+#include "swrs.h"
 
 // reference additional headers your program requires here
 
