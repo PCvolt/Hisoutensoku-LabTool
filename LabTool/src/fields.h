@@ -176,3 +176,16 @@ enum {
 #define ACCESS_FLOAT(object, offset) ACCESS_FIELD(object, float, offset)
 #define FIELD_ADDRESS(object, offset) reinterpret_cast<void*>(ACCESS_TO_FIELD_IMP(object, offset))
 #endif // fields_h__
+
+
+template<typename Dest>
+typename std::decay_t<Dest>& GetField(void* object, unsigned int offset)
+{
+  return *(reinterpret_cast<std::decay_t<Dest>*>(reinterpret_cast<PBYTE>(object) + (offset)));
+}
+
+template<typename Dest>
+void ReadField(void* object, unsigned int offset, Dest& output)
+{
+  output = GetField<std::decay_t<Dest>>(object, offset);
+}

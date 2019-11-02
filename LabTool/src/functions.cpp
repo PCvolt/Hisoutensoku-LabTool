@@ -28,13 +28,13 @@ void update_position(Player *player)
 	player->position.xspeed = ACCESS_FLOAT(player->p, CF_X_SPEED);
 	player->position.yspeed = ACCESS_FLOAT(player->p, CF_Y_SPEED);
 	player->position.gravity = ACCESS_FLOAT(player->p, CF_GRAVITY);
-	player->position.direction = ACCESS_INT(player->p, CF_DIR);
+	player->position.direction = ACCESS_CHAR(player->p, CF_DIR);
 }
 
 void update_playerinfo(Player *player, int add_bmgr_px)
 {
 	player->p = ACCESS_PTR(g_pbattleMgr, add_bmgr_px);
-	player->index = ACCESS_INT(player->p, CF_CHARACTER_INDEX);
+	player->index = ACCESS_CHAR(player->p, CF_CHARACTER_INDEX);
 
 	player->x_pressed = ACCESS_INT(player->p, CF_PRESSED_X_AXIS);
 	player->y_pressed = ACCESS_INT(player->p, CF_PRESSED_Y_AXIS);
@@ -113,13 +113,21 @@ void set_position(Player *player, Position pos, int mode)
 }
 
 void position_management(Player *p1, Player *p2) {
-	if (GetKeyState(savestate_keys.save_pos) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
+  //std::cout << GetAsyncKeyState(savestate_keys.save_pos) << std::endl;
+  //std::cout << std::cout.boolalpha << LabToolManager::isHisoutensokuOnTop() << std::endl;
+	if (((GetAsyncKeyState(savestate_keys.save_pos) & 0x8000) != 0) && LabToolManager::isHisoutensokuOnTop()) {
 		if (!held_keys.save_pos)
 		{
 			custom_pos = save_checkpoint(p1);
 			custom_pos2 = save_checkpoint(p2);
-			printf("Positions saved at: (%f, %f) VS (%f, %f)\n", custom_pos.x, custom_pos.y, custom_pos2.x, custom_pos2.y);
-		}
+
+      const auto &str = "Positions saved at: (" + std::to_string(custom_pos.x) + ", " + std::to_string(custom_pos.y) + ") VS (" +
+        std::to_string(custom_pos2.x) + ", " + std::to_string(custom_pos2.y) + ")";
+      auto oldPrecision = std::cout.precision();
+      std::cout.precision(2);
+      std::cout << str << std::endl;
+      std::cout.precision(oldPrecision);
+    }
 		held_keys.save_pos = true;
 	}
 	else
@@ -128,7 +136,7 @@ void position_management(Player *p1, Player *p2) {
 	}
 
 
-	if (GetKeyState(savestate_keys.reset_pos) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
+	if (GetAsyncKeyState(savestate_keys.reset_pos) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
 	{
 		if (!held_keys.set_pos)
 		{
@@ -313,7 +321,6 @@ void is_tight(Player *player)
 /* MACROS */
 void random_CH(Player *player)
 {
-
 	if (GetAsyncKeyState(savestate_keys.randomCH) & 1 && LabToolManager::isHisoutensokuOnTop())
 		toggle_keys.randomCH = !toggle_keys.randomCH;
 	
@@ -323,7 +330,6 @@ void random_CH(Player *player)
 		int a = rand() % 2;
 		if (a == 1)
 			CH = true;
-
 
 		if (player->frameflag & FF_GUARD_AVAILABLE)
 		{//if not in CH state already and can guard (to prevent CH mid-combo)
@@ -679,7 +685,7 @@ void BE_1st_hit(Player *player, Commands *commands)
 void macros(Player *p1, Player *p2)
 {
 	/* WAKEUP OPTIONS */
-	if (GetKeyState(savestate_keys.wakeup_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
+	if (GetAsyncKeyState(savestate_keys.wakeup_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
 		if (!held_keys.wakeup_macro)
 		{
 			misc_states.wakeup_mode = (misc_states.wakeup_mode + 1) % 7; //bad magic number
@@ -706,7 +712,7 @@ void macros(Player *p1, Player *p2)
 	}
 
 	/* TECH */
-	if (GetKeyState(savestate_keys.tech_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
+	if (GetAsyncKeyState(savestate_keys.tech_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
 		if (!held_keys.tech_macro)
 		{
 			misc_states.tech_mode = (misc_states.tech_mode + 1) % 4; //bad magic number
@@ -729,7 +735,7 @@ void macros(Player *p1, Player *p2)
 		held_keys.tech_macro = false;
 	}
 	
-	if (GetKeyState(savestate_keys.firstblock_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
+	if (GetAsyncKeyState(savestate_keys.firstblock_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
 		if (!held_keys.firstblock_macro)
 		{
 			misc_states.firstblock_mode = (misc_states.firstblock_mode + 1) % 3; //bad magic number
@@ -751,7 +757,7 @@ void macros(Player *p1, Player *p2)
 		held_keys.firstblock_macro = false;
 	}
 
-	if (GetKeyState(savestate_keys.BE_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
+	if (GetAsyncKeyState(savestate_keys.BE_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
 		if (!held_keys.BE_macro)
 		{
 			misc_states.BE_mode = (misc_states.BE_mode + 1) % 5; //bad magic number
@@ -852,7 +858,7 @@ void reset_skills(Player *player)
 	if (ACCESS_CHAR(player->p, CF_CHARACTER_INDEX) == PATCHOULI)
 		nb_skills = 5;
 
-	if (GetKeyState(savestate_keys.reset_skills) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
+	if (GetAsyncKeyState(savestate_keys.reset_skills) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
 	{
 		for (int i = 0; i < nb_skills; ++i)
 		{

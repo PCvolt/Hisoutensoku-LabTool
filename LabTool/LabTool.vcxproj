@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\address.h" />
     <ClInclude Include="src\fields.h" />
     <ClInclude Include="src\functions.h" />
     <ClInclude Include="src\labTool_manager.h" />

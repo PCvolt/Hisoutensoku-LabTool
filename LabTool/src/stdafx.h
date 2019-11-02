@@ -14,9 +14,9 @@
 #include <windows.h>
 
 //Standard C++ headers
-#include <cstdio>
-#include <cstdlib>
 #include <iostream>
+#include <fstream>
+#include <iomanip>
 
 //Standard headers
 #include <d3d9.h>

@@ -6,7 +6,7 @@
 #include "labTool_manager.h"
 
 /* freopen is obsolete Gifu :( */
-#pragma warning(disable : 4996)
+//#pragma warning(disable : 4996)
 
 //A couple of thoughts about the battle manager virtual functions table and its memory offsets
 //0x00 - destructor
@@ -63,41 +63,6 @@ Toggle_key toggle_keys;
 Held_key held_keys;
 Misc_state misc_states;
 
-void OpenConsole() {
-  if (AllocConsole()) {
-    // FILE* stream = nullptr; // initializing this makes the game crash, but
-    // not doing so causes a warning, hence the pragma (deleted on this version
-    // since it apparently works now)
-
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-
-    // Note that there is no CONERR$ file
-    HANDLE hStdout = CreateFile("CONOUT$", GENERIC_READ | GENERIC_WRITE,
-                                FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
-                                OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-    HANDLE hStdin = CreateFile("CONIN$", GENERIC_READ | GENERIC_WRITE,
-                               FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr,
-                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-    SetStdHandle(STD_OUTPUT_HANDLE, hStdout);
-    SetStdHandle(STD_ERROR_HANDLE, hStdout);
-    SetStdHandle(STD_INPUT_HANDLE, hStdin);
-
-    std::wcin.clear();
-    std::cin.clear();
-    std::wcout.clear();
-    std::cout.clear();
-    std::wcerr.clear();
-    std::cerr.clear();
-    std::cout << "Welcome to LabTool. Become better, good luck!" << std::endl;
-    return;
-  }
-  std::cout << "Console allocation problem, restart Hisoutensoku, please."
-            << std::endl;
-}
-
 void* __fastcall CBattleManager_OnCreate(void *This) {
   CBattleManager_Create(This);
 
@@ -139,26 +104,17 @@ void __fastcall CBattleManager_OnRender(void *This) {
 
 void* __fastcall CBattleManager_OnInitialize(void *This, void* mystery, int dyn) {
   auto ret = CBattleManager_Initialize(This, dyn);
-  auto& ltMng = LabToolManager::getInstance();
-
-  if(ltMng.create())
-  {
-    std::cout << "Girls are ready! " + ltMng.getMainGirlName() + " vs " + ltMng.getSecondGirlName() + "." << std::endl;
-  }
-  else
-  {
-    std::cout << "Initialization problem. The LabTool supports only Practice or VsPlayer or Replay modes." << std::endl;
-  }
+  LabToolManager::getInstance().create();
   return ret;
 }
 int __fastcall CBattleManager_OnDeInitialize(void *This) {
   LabToolManager::getInstance().destruct();
-  auto ret = CBattleManager_DeInitialize(This);
-  return ret;
+  return CBattleManager_DeInitialize(This);
 }
 
+bool go = true;
 int __fastcall CBattleManager_OnProcess(void *This) {
-  auto ret = CBattleManager_Process(This);
+
   auto& labToolMgr = LabToolManager::getInstance();
 
   if (labToolMgr.isValidMode())
@@ -167,6 +123,7 @@ int __fastcall CBattleManager_OnProcess(void *This) {
     Player p2;
     update_playerinfo(&p1, ADDR_BMGR_P1);
     update_playerinfo(&p2, ADDR_BMGR_P2);
+
     position_management(&p1, &p2);
     gap_count(&p2);
     hjcadvantage_count(&p1, &p2);
@@ -182,7 +139,7 @@ int __fastcall CBattleManager_OnProcess(void *This) {
     state_display(&p1);
     state_display(&p2);
 	}
-
+  auto ret = CBattleManager_Process(This);
 	return ret;
 }
 
@@ -190,11 +147,10 @@ int __fastcall CBattleManager_OnProcess(void *This) {
 
 void* __fastcall CBattleManager_OnDestruct(void *This, void* mystery, int dyn) {
   void* ret;
-#ifdef _DEBUG
   ret = CBattleManager_Destruct(This, dyn);
-#endif // _DEBUG
-
+#ifdef _DEBUG
   std::cout << "Battle manager destructed." << std::endl;
+#endif // _DEBUG
   return ret;
 }
 
@@ -207,7 +163,7 @@ extern "C" {
   __declspec(dllexport) bool Initialize(HMODULE hMyModule, HMODULE hParentModule)
   {
     DWORD old;
-    OpenConsole();
+    //OpenConsole();
 
     /* .ini */
     GetModuleFileName(hMyModule, s_profilePath, 1024);
