@@ -18,10 +18,7 @@ Touhou 12.3 - Hisoutensoku: SWRSToys module for a better labbing experience
 - **Highjump cancel advantage**: p2 remains on the ground while p1 must hjc for the result to be displayed.
 
 ### AUTOMATED MACROS
-With the event of SokuEngine and PracticeEX, several macros were removed as the aforementioned perform macros much better.
-Only available in VS Player. Make sure to set two different keymappings to player 1 and player 2.
-By setting the dummy as "Player 2" will do the following:
-- tech (neutral, left, right, random)
+With the event of SokuEngine and PracticeEX, macros were removed as the aforementioned tools are able to perform any kind of macros. Only Labtool 1.0 (not stable) version featured macros.
 
 ### MISCELLANEOUS
 - **Skills reset** with a key customizable in the .ini, reset the levels and the skills you used to default.

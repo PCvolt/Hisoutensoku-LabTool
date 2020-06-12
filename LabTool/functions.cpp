@@ -107,7 +107,12 @@ void position_management(Player* p1, Player* p2) {
 		{
 			custom_pos = save_checkpoint(p1);
 			custom_pos2 = save_checkpoint(p2);
-			printf("Positions saved at: (%.2f, %.2f) VS (%.2f, %.2f)\n", custom_pos.x, custom_pos.y, custom_pos2.x, custom_pos2.y);
+			std::cout << std::endl << "P1 position checkpoint: ("
+				<< std::fixed << std::setprecision(2) << custom_pos.x << ", "
+				<< std::fixed << std::setprecision(2) << custom_pos.y << ")" << std::endl
+				<< "P2 position checkpoint: ("
+				<< std::fixed << std::setprecision(2) << custom_pos2.x << ", "
+				<< std::fixed << std::setprecision(2) << custom_pos2.y << ")" << std::endl;
 		}
 		held_keys.save_pos = true;
 	}
@@ -300,152 +305,6 @@ void is_tight(Player* player)
 	}
 }
 
-
-/* MACROS */
-Commands commands_p1 = { 0 };
-Commands commands_p2 = { 0 };
-void send_inputs(Commands commands_p1, Commands commands_p2) {
-	int inputCount = 0;
-	INPUT inputs[2 * 10];
-
-	auto ProcessKeys = [](INPUT* inputs, int& inputCount, Commands* commands, int* keymap) {
-		auto ProcessKey = [&inputs, &inputCount, &keymap](int keyCommand, int keymapIndex) {
-			if (keyCommand == 1 || keyCommand == -1)
-			{
-				inputs[inputCount].type = INPUT_KEYBOARD;
-				inputs[inputCount].ki.wVk = 0;
-				inputs[inputCount].ki.wScan = keymap[keymapIndex];
-				inputs[inputCount].ki.dwFlags = KEYEVENTF_SCANCODE | ((keyCommand == -1) ? KEYEVENTF_KEYUP : 0);
-				inputs[inputCount].ki.time = 0;
-				inputs[inputCount].ki.dwExtraInfo = 0;
-				inputCount++;
-			}
-		};
-		ProcessKey(commands->up, KeymapIndex::up);
-		ProcessKey(commands->down, KeymapIndex::down);
-		ProcessKey(commands->left, KeymapIndex::left);
-		ProcessKey(commands->right, KeymapIndex::right);
-		ProcessKey(commands->A, KeymapIndex::A);
-		ProcessKey(commands->B, KeymapIndex::B);
-		ProcessKey(commands->C, KeymapIndex::C);
-		ProcessKey(commands->D, KeymapIndex::D);
-		ProcessKey(commands->sw, KeymapIndex::sw);
-		ProcessKey(commands->sc, KeymapIndex::sc);
-	};
-
-	/* With two Commands structures for each player, we obtain their mappings and construct *inputs */
-	ProcessKeys(inputs, inputCount, &commands_p1, (int*)SWRS_ADDR_1PKEYMAP);
-	ProcessKeys(inputs, inputCount, &commands_p2, (int*)SWRS_ADDR_2PKEYMAP);
-
-	if (LabToolManager::isHisoutensokuOnTop())
-	{
-		SendInput(inputCount, inputs, sizeof(INPUT)); //20, array of 20 INPUTs, size of INPUT
-	}
-}
-
-
-int forward_wakeup[20] = { 55,53,49,50,48,58,36,64,77,48,46,47,55,89,43,54,55,45,56,82 };
-int backward_wakeup[20] = { 55,52,47,50,48,58,36,64,77,48,59,47,55,89,43,59,55,45,56,82 };
-int neutral_wakeup[20] = { 34,37,39,30,28,30,30,20,59,36,44,37,48,40,32,26,32,27,21,30 };
-
-int wakeup_time(Player* player)
-{
-	if (player->current_sequence == FORWARD_TECH)
-		return forward_wakeup[player->index];
-	else if (player->current_sequence == BACKWARD_TECH)
-		return backward_wakeup[player->index];
-	else if (player->current_sequence == NEUTRAL_TECH)
-		return neutral_wakeup[player->index];
-
-	return -1;
-}
-
-void input_reset(int* direction)
-{
-	if (*direction == 1)
-		*direction = -1;
-	else
-		*direction = 0;
-}
-
-void tech(Player* player, int* D, int* direction)
-{
-	if (*D == -1 && *direction == -1)
-	{
-		*D = 0;
-		*direction = 0;
-	}
-	else if (*D == 1 && *direction == 1)
-	{
-		*D = -1;
-		*direction = -1;
-	}
-	else if (player->frameflag & FF_DOWN && player->elapsed_in_subseq == 0)
-	{
-		*D = 1;
-		*direction = 1;
-	}
-}
-
-void tech_options(Player* player, Commands* commands)
-{
-	int* direction = NULL;
-	if (misc_states.tech_mode == neutral)
-		direction = &commands->down;
-	if (misc_states.tech_mode == left)
-		direction = &commands->left;
-	if (misc_states.tech_mode == right)
-		direction = &commands->right;
-	if (misc_states.tech_mode == random)
-	{
-		int a = rand() % 3;
-
-		switch (a)
-		{
-		case 0: direction = &commands->down;
-			break;
-		case 1: direction = &commands->left;
-			break;
-		case 2: direction = &commands->right;
-			break;
-		default:
-			break;
-		}
-	}
-	tech(player, &commands->D, direction);
-}
-
-void macros(Player* p1, Player* p2)
-{
-	/* TECH */
-	if (GetAsyncKeyState(savestate_keys.tech_macro) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
-		if (!held_keys.tech_macro)
-		{
-			misc_states.tech_mode = (misc_states.tech_mode + 1) % 4; //bad magic number
-			std::string tech_mode_name;
-			switch (misc_states.tech_mode)
-			{
-			case 0: tech_mode_name = "neutral"; break;
-			case 1: tech_mode_name = "left"; break;
-			case 2: tech_mode_name = "right"; break;
-			case 3: tech_mode_name = "random"; break;
-			default:
-				break;
-			}
-			std::cout << "#Players will be teching " << tech_mode_name << std::endl;
-		}
-		held_keys.tech_macro = true;
-	}
-	else
-	{
-		held_keys.tech_macro = false;
-	}
-	tech_options(p2, &commands_p2);
-
-	send_inputs(commands_p1, commands_p2);
-}
-
-
 /* MISCELLANEOUS */
 void state_display(Player* player)
 {
@@ -523,5 +382,7 @@ void reset_skills(Player* player)
 			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_1 + i) = -1;
 			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_2 + i) = -1;
 		}
+		
+		std::cout << "Skills have been reset to default and lv0." << std::endl;
 	}
 }

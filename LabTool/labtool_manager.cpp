@@ -108,8 +108,14 @@ LabToolConsole::LabToolConsole()
 		std::cout.clear();
 		std::cerr.clear();
 
-		SetConsoleTitle(std::string("LabTool").c_str());
-		std::cout << "Welcome to LabTool 1.1.0!" << std::endl;
+		SetConsoleTitle(std::string("LabTool 1.1.0").c_str());
+		std::cout
+			<< "\tWelcome to LabTool 1.1.0!" << std::endl
+			<< " 1: Positions reset" << std::endl
+			<< " 2: Positions save" << std::endl
+			<< " 4: Skills reset" << std::endl
+			<< " backspace: State display" << std::endl
+			<< " ====================" << std::endl;
 		return;
 	}
 	std::cout << "Console allocation problem, please restart the game." << std::endl;

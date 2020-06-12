@@ -121,11 +121,8 @@ int __fastcall CBattleManager_OnProcess(void* This) {
 		frameadvantage_count(&p1, &p2);
 		is_tight(&p2);
 
-		macros(&p1, &p2);
-
 		reset_skills(&p1);
 		reset_skills(&p2);
-
 		state_display(&p1);
 		state_display(&p2);
 	}

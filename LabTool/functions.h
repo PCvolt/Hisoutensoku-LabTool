@@ -61,7 +61,6 @@ struct Keys {
 	UINT reset_pos;
 	UINT display_states;
 	UINT reset_skills;
-	UINT tech_macro;
 };
 
 
@@ -70,13 +69,11 @@ struct Toggle_key {
 	bool save_pos;
 	bool reset_pos;
 	bool reset_skills;
-	int tech_macro;
 };
 
 struct Held_key {
 	bool set_pos;
 	bool save_pos;
-	bool tech_macro;
 };
 
 /* PLAYER */
@@ -92,19 +89,6 @@ struct Misc_state {
 
 	int wakeup_count_p1;
 	int wakeup_count_p2;
-};
-
-struct Commands {
-	int up;
-	int down;
-	int left;
-	int right;
-	int A;
-	int B;
-	int C;
-	int D;
-	int sw;
-	int sc;
 };
 
 struct Position {
@@ -159,11 +143,6 @@ void frameadvantage_count(Player*, Player*);
 void hjcadvantage_count(Player*, Player*);
 bool untight_check(Player*);
 void is_tight(Player*);
-
-/* MACROS */
-void send_inputs(Commands, Commands);
-void tech(Player*, int*, int*);
-void macros(Player*, Player*);
 
 /* MISCELLANEOUS */
 void state_display(Player*);
