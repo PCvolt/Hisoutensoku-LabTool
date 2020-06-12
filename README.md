@@ -7,7 +7,7 @@ Download here: https://github.com/PCvolt/Hisoutensoku-LabTool/releases/download/
 3. Profit.
 
 ## FEATURES
-Touhou 12.3 - Hisoutensoku: SWRSToys module for a better labbing experience
+Touhou 12.3 - Hisoutensoku: SWRSToys module for a better labbing experience in Practice Mode, VS Player Mode and Replay Mode.
 
 ### STATES AND POSITIONS
 - Display of **grazing** in *transparent*, **CH** in *red*, **invulnerability** in *blue* (do not trust it for DP moves, as they are strangely hardcoded), **guard unavailable** in *purple*.
@@ -22,6 +22,8 @@ With the event of SokuEngine and PracticeEX, macros were removed as the aforemen
 
 ### MISCELLANEOUS
 - **Skills reset** with a key customizable in the .ini, reset the levels and the skills you used to default.
+
+You can set the properties of the terminal to pop up at a fixed place and change its default size.
 
 ### SWRSTOYS
 You can find the series of SWRSToys mods here, written and compiled by the community: https://github.com/delthas/SWRSToys

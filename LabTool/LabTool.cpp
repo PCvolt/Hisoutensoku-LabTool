@@ -64,25 +64,21 @@ Misc_state misc_states;
 
 void* __fastcall CBattleManager_OnInitialize(void* This, void* mystery, int dyn) {
 	auto ret = CBattleManager_Initialize(This, dyn);
-	LabToolManager::getInstance().create();
 	return ret;
 }
+
 int __fastcall CBattleManager_OnDeInitialize(void* This) {
-	LabToolManager::getInstance().destruct();
 	auto ret = CBattleManager_DeInitialize(This);
 	return CBattleManager_DeInitialize(This);
 }
 
-
 void* __fastcall CBattleManager_OnCreate(void* This) {
 	CBattleManager_Create(This);
-	std::cout << "\tEntering Character Select" << std::endl;
-
+	LabToolManager::getInstance().create();
 	/* .INI */
 	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
 	savestate_keys.reset_pos = ::GetPrivateProfileInt("KEYS", "reset_pos", 0, s_profilePath);
 	savestate_keys.reset_skills = ::GetPrivateProfileInt("KEYS", "reset_skills", 0, s_profilePath);
-	savestate_keys.tech_macro = ::GetPrivateProfileInt("KEYS", "tech_macro", 0, s_profilePath);
 	savestate_keys.display_states = ::GetPrivateProfileInt("KEYS", "display_states", 0, s_profilePath);
 
 
@@ -129,15 +125,12 @@ int __fastcall CBattleManager_OnProcess(void* This) {
 
 	auto ret = CBattleManager_Process(This);
 	int battleManager = ACCESS_INT(ADDR_BATTLE_MANAGER, 0);
-
 	return ret;
 }
 
-
 void* __fastcall CBattleManager_OnDestruct(void* This, int mystery, int dyn) {
-	void* ret;
-	ret = CBattleManager_Destruct(This, dyn);
-	system("cls");
+	LabToolManager::getInstance().destruct();
+	auto ret = CBattleManager_Destruct(This, dyn);
 	return ret;
 }
 
@@ -150,7 +143,6 @@ extern "C" {
 	__declspec(dllexport) bool Initialize(HMODULE hMyModule, HMODULE hParentModule)
 	{
 		DWORD old;
-		//OpenConsole();
 
 		/* .ini */
 		GetModuleFileName(hMyModule, s_profilePath, 1024);

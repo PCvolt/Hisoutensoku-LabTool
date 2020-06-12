@@ -31,14 +31,14 @@ void LabToolManager::create()
 
 	_pConsole = std::make_unique<LabToolConsole>();
 	RET_VOID_IF_FALSE(SetForegroundWindow(getSokuHandle()));
-
+	/*
 	_pPlayerMain = std::make_unique<PlayerImpl>();
 	_pPlayerMain->setData(ADDR_BMGR_P1);
 
 	_pPlayerSecond = std::make_unique<PlayerImpl>();
 	_pPlayerSecond->setData(ADDR_BMGR_P2);
-
-	//std::cout << "Girls are ready! " + _pPlayerMain->getGirlName() + " vs " + _pPlayerSecond->getGirlName() + "." << std::endl;
+	std::cout << "Girls are ready! " + _pPlayerMain->getGirlName() + " vs " + _pPlayerSecond->getGirlName() + "." << std::endl;
+	*/
 }
 
 void LabToolManager::destruct()
@@ -51,7 +51,7 @@ void LabToolManager::destruct()
 
 bool LabToolManager::isValidMode() const
 {
-	return _currentMode == EMode::ePractice || _currentMode == EMode::eReplay;
+	return _currentMode == EMode::ePractice || _currentMode == EMode::eVsPlayer || _currentMode == EMode::eReplay;
 }
 
 const PlayerImplPtr& LabToolManager::getPlayerMain()
@@ -109,16 +109,25 @@ LabToolConsole::LabToolConsole()
 		std::cerr.clear();
 
 		SetConsoleTitle(std::string("LabTool 1.1.0").c_str());
+
 		std::cout
 			<< "\tWelcome to LabTool 1.1.0!" << std::endl
-			<< " 1: Positions reset" << std::endl
-			<< " 2: Positions save" << std::endl
-			<< " 4: Skills reset" << std::endl
-			<< " backspace: State display" << std::endl
-			<< " ====================" << std::endl;
+			<< " ===============================" << std::endl
+			<< "| 1: Positions reset\t\t|" << std::endl
+			<< "| 2: Positions save\t\t|" << std::endl
+			<< "| 4: Skills reset\t\t|" << std::endl
+			<< "| backspace: State display\t|" << std::endl
+			<< " ===============================" << std::endl << std::endl;
 		return;
 	}
-	std::cout << "Console allocation problem, please restart the game." << std::endl;
+	std::cout << "Labtool 1.1.0 works in:" << std::endl
+		<< " ===============================" << std::endl
+		<< "| Practice Mode\t\t|" << std::endl
+		<< "| VS Mode\t\t|" << std::endl
+		<< "| Replay Mode\t\t|" << std::endl
+		<< " ===============================" << std::endl;
+
+		//Possible console allocation problem ?
 }
 
 LabToolConsole::~LabToolConsole()
