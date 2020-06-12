@@ -1,5 +1,6 @@
 ﻿#pragma once
-
+#ifndef address_h__
+#define address_h__
 
 //#define WINDOW_CLASS            g_ini.GetValue("WINDOW_CLASS")
 //#define WINDOW_TEXT             g_ini.GetValue("WINDOW_TEXT")
@@ -304,7 +305,7 @@ public:
 	//const wchar_t *name_list[ADDR_MAX];
 	unsigned int list[ADDR_MAX];
 
-	const unsigned int &operator [](unsigned int n) {
+	const unsigned int& operator [](unsigned int n) {
 		/*if(list[n] == 0)  {
 		  list[n] = g_ini.GetInt(name_list[n]);
 		}*/
@@ -328,3 +329,5 @@ private:
 };
 
 //extern address addr;
+
+#endif // address_h__

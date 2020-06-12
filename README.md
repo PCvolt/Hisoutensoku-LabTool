@@ -17,24 +17,14 @@ Touhou 12.3 - Hisoutensoku: SWRSToys module for a better labbing experience
 - **Frame advantage**: both characters must be on ground for the result to be displayed. 
 - **Highjump cancel advantage**: p2 remains on the ground while p1 must hjc for the result to be displayed.
 
-### AUTOMATED MACROS (Work in Progress)
-Only available in VS Player. Make sure to set two different keymappings to player 1 and player 2. Player 2 will do the following:
+### AUTOMATED MACROS
+With the event of SokuEngine and PracticeEX, several macros were removed as the aforementioned perform macros much better.
+Only available in VS Player. Make sure to set two different keymappings to player 1 and player 2.
+By setting the dummy as "Player 2" will do the following:
 - tech (neutral, left, right, random)
-- wakeup options (nothing, jump, highjump, backdash(not functional), mash4A, 623B, card)
-- block first hit only (no block, block high, block low)
-- BE on first block (no BE, BE2, BE1, (j)BE6, (j)BE4)
-
-Please DO REPORT bugs to me.
 
 ### MISCELLANEOUS
-- **Random CH** with a key customizable in the .ini, toggle on and off a random CH state to train CH combos on reaction. Untoggle the State Display for more realism.
 - **Skills reset** with a key customizable in the .ini, reset the levels and the skills you used to default.
 
-## THE CODE
-Any help is welcome.
-Use Visual Studio for compilation as .dll.
-
-### KNOWN BUGS
-- randomCH function completely disables the CH state for player 2.
-- yuyuko 3Arb against standing is displayed as +12F while she is -12F.
-- suika crouch in corner, youmu d22 is displayed as -17, but if youmu holds a direction she is displayed as +18.
+### SWRSTOYS
+You can find the series of SWRSToys mods here, written and compiled by the community: https://github.com/delthas/SWRSToys

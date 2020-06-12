@@ -4,6 +4,8 @@
 //
 
 #pragma once
+#ifndef stdafx_h__
+#define stdafx_h__
 
 #include "targetver.h"
 
@@ -11,6 +13,24 @@
 // Windows Header Files
 #include <windows.h>
 
+//Standard C++ headers
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
+//Standard headers
+#include <d3d9.h>
+#include <mmsystem.h>
+#include <shlwapi.h>
+#include <array>
+#include <string>
+
+#define SWRS_USES_HASH
+
+//SWRSToys headers
+#include "fields.h"
+#include "swrs.h"
 
 // reference additional headers your program requires here
+
+#endif // stdafx_h__

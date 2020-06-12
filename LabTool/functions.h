@@ -1,13 +1,13 @@
 #pragma once
-#define LEFT_CORNER_P1	79.0f
-#define	LEFT_NEAR_P1	379.0f
-#define	MIDSCREEN_P1	601.0f
+#define LEFT_CORNER_P1	40.0f
+#define	LEFT_NEAR_P1	340.0f
+#define	MIDSCREEN_P1	600.0f
 #define	RIGHT_NEAR_P1	901.0f
 #define	RIGHT_CORNER_P1 1201.0f
 
-#define	LEFT_CORNER_P2	40.0f
-#define	LEFT_NEAR_P2	340.0f
-#define	MIDSCREEN_P2	640.0f
+#define	LEFT_CORNER_P2	79.0f 
+#define	LEFT_NEAR_P2	379.0f 
+#define	MIDSCREEN_P2	639.0f
 #define	RIGHT_NEAR_P2	940.0f
 #define	RIGHT_CORNER_P2 1240.0f
 
@@ -54,47 +54,33 @@ enum SAVESTATE_MODE {
 
 namespace KeymapIndex { enum KeymapIndex : int { up, down, left, right, A, B, C, D, sw, sc }; }
 enum tech_select : int { neutral, left, right, random };
-enum reversal_select : int { nothing, jump, highjump, backdash, mash4A,  d623B, spellcard };
-enum first_select : int { noblocking, standing, crouching };
-enum BE_select : int { noBE, BEdown, BEdownside, BEside, BEback };
 
 /* KEYS */
-typedef struct {
+struct Keys {
 	UINT save_pos;
 	UINT reset_pos;
 	UINT display_states;
-	UINT randomCH;
 	UINT reset_skills;
 	UINT tech_macro;
-	UINT wakeup_macro;
-	UINT firstblock_macro;
-	UINT BE_macro;
-} Keys;
+};
 
 
-typedef struct {
+struct Toggle_key {
 	bool display_states;
 	bool save_pos;
 	bool reset_pos;
-	bool randomCH;
 	bool reset_skills;
 	int tech_macro;
-	int wakeup_macro;
-	int firstblock_macro;
-	int BE_macro;
-} Toggle_key;
+};
 
-typedef struct {
+struct Held_key {
 	bool set_pos;
 	bool save_pos;
 	bool tech_macro;
-	bool wakeup_macro;
-	bool firstblock_macro;
-	bool BE_macro;
-} Held_key;
+};
 
 /* PLAYER */
-typedef struct {
+struct Misc_state {
 	int frame_advantage;
 	bool blockstring;
 	int hjc_advantage;
@@ -102,17 +88,13 @@ typedef struct {
 	int isIdle;
 	bool untight_nextframe;
 
-	bool already_CH;
 	int tech_mode;
-	int wakeup_mode;
-	int firstblock_mode;
-	int BE_mode;
 
 	int wakeup_count_p1;
 	int wakeup_count_p2;
-} Misc_state;
+};
 
-typedef struct {
+struct Commands {
 	int up;
 	int down;
 	int left;
@@ -123,19 +105,19 @@ typedef struct {
 	int D;
 	int sw;
 	int sc;
-} Commands;
+};
 
-typedef struct {
+struct Position {
 	float x;
 	float y;
 	float xspeed;
 	float yspeed;
 	float gravity;
 	int direction;
-} Position;
+};
 
-typedef struct {
-	void *p;
+struct Player {
+	void* p;
 	int index;
 
 	int x_pressed;//left is -, right is +
@@ -152,40 +134,39 @@ typedef struct {
 
 	short untech;
 	char card;
-} Player;
+};
 
 extern Keys savestate_keys;
 extern Toggle_key toggle_keys;
 extern Held_key held_keys;
 extern Misc_state misc_states;
 
+static HWND sokuWindow;
 
 /* UPDATE FUNCTIONS */
-void update_position(Player *);
-void update_playerinfo(Player *, int, int);
+void update_position(Player*);
+void update_playerinfo(Player*, int);
 
 /* POSITION FUNCTIONS */
 Position init_pos(float);
-Position save_checkpoint(Player *);
-void set_position(Player *, Position, int);
-void position_management(Player *, Player *);
+Position save_checkpoint(Player*);
+void set_position(Player*, Position, int);
+void position_management(Player*, Player*);
 
 /* FRAMECOUNT FUNCTIONS */
-void gap_count(Player *);
-void frameadvantage_count(Player *, Player *);
-void hjcadvantage_count(Player *, Player *);
-bool untight_check(Player *);
-void is_tight(Player *);
+void gap_count(Player*);
+void frameadvantage_count(Player*, Player*);
+void hjcadvantage_count(Player*, Player*);
+bool untight_check(Player*);
+void is_tight(Player*);
 
 /* MACROS */
-void random_CH(Player *);
-void block_1st_hit(Player *, int *);
 void send_inputs(Commands, Commands);
-void tech(Player *, int *, int *);
-void macros(Player *, Player *);
+void tech(Player*, int*, int*);
+void macros(Player*, Player*);
 
 /* MISCELLANEOUS */
-void state_display(Player *);
-void set_health(Player *, short);
-void set_spirit(Player *, short, short);
-void reset_skills(Player *);
+void state_display(Player*);
+void set_health(Player*, short);
+void set_spirit(Player*, short, short);
+void reset_skills(Player*);

@@ -450,13 +450,13 @@ Ccall(ppfile, 0x0040CD90, bool, (LPCSTR))(name)
 */
 // ･筰`･ﾉ
 // int
-#define g_mainMode   (*reinterpret_cast<DWORD *>(ADDR_COMM_MODE))
-#define g_subMode    (*reinterpret_cast<DWORD *>(ADDR_SUB_MODE))
-#define g_menuMode   (*reinterpret_cast<DWORD *>(ADDR_MENU_MODE))
+#define g_mainMode   (*reinterpret_cast<PDWORD>(ADDR_COMM_MODE))
+#define g_subMode    (*reinterpret_cast<PDWORD>(ADDR_SUB_MODE))
+#define g_menuMode   (*reinterpret_cast<PDWORD>(ADDR_MENU_MODE))
 // ･ｷｩ`･D
 // DWORD
-#define g_sceneIdNew (*reinterpret_cast<DWORD*>(ADDR_SCENE_ID_NEW))
-#define g_sceneId    (*reinterpret_cast<DWORD*>(ADDR_SCENE_ID))
+#define g_sceneIdNew (*reinterpret_cast<PDWORD>(ADDR_SCENE_ID_NEW))
+#define g_sceneId    (*reinterpret_cast<PDWORD>(ADDR_SCENE_ID))
 /*
 // ･ｳ･ﾐｩ`･ﾈ･ﾇｩ`･ｿﾀ﨧ﾃ･ﾕ･鬣ｰ
 // bool

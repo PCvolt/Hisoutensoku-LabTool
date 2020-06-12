@@ -1,4 +1,7 @@
 #pragma once
+#ifndef fields_h__
+#define fields_h__
+
 /* Character class. */
 #define CF_UNKNOWN 0x7D0 // short		// Dash time (?)
 #define CF_X_POS 0x0EC // float			// x pos
@@ -139,35 +142,50 @@ PRESSED COMBINATION CODES: (B version, multiply by two for C version)
 
 /* Characters in order. */
 enum {
-	REIMU,
-	MARISA,
-	SAKUYA,
-	ALICE,
-	PATCHOULI,
-	YOUMU,
-	REMILIA,
-	YUYUKO,
-	YUKARI,
-	SUIKA,
-	AYA,
-	REISEN,
-	KOMACHI,
-	IKU,
-	TENSHI,
-	SANAE,
-	MEILING,
-	CIRNO,
-	SUWAKO,
-	UTSUHO,
-	NAMAZU,
+    REIMU,
+    MARISA,
+    SAKUYA,
+    ALICE,
+    PATCHOULI,
+    YOUMU,
+    REMILIA,
+    YUYUKO,
+    YUKARI,
+    SUIKA,
+    REISEN,
+    AYA,
+    KOMACHI,
+    IKU,
+    TENSHI,
+    SANAE,
+    CIRNO,
+    MEILING,
+    UTSUHO,
+    SUWAKO,
+    NAMAZU
 };
 
 /* Accessors. */
-#define ACCESS_FIELD(object, type, offset) (*(type*)(((char*)(object)) + (offset)))
+#define ACCESS_TO_FIELD_IMP(object, offset) (reinterpret_cast<PBYTE>(object) + (offset))
+#define ACCESS_FIELD(object, type, offset) *(reinterpret_cast<type*>(ACCESS_TO_FIELD_IMP(object, offset)))
 #define ACCESS_INT(object, offset) ACCESS_FIELD(object, int, offset)
-#define ACCESS_PTR(object, offset) ((void*)ACCESS_INT(object, offset))
+#define ACCESS_PTR(object, offset) ACCESS_FIELD(object, void*, offset)
 #define ACCESS_CHAR(object, offset) ACCESS_FIELD(object, char, offset)
-#define ACCESS_UCHAR(object, offset) ACCESS_FIELD(object, uchar, offset)
+#define ACCESS_UCHAR(object, offset) ACCESS_FIELD(object, unsigned char, offset)
 #define ACCESS_SHORT(object, offset) ACCESS_FIELD(object, short, offset)
 #define ACCESS_FLOAT(object, offset) ACCESS_FIELD(object, float, offset)
-#define FIELD_ADDRESS(object, offset) ((void*)((offset) + (char*)(object)))
+#define FIELD_ADDRESS(object, offset) reinterpret_cast<void*>(ACCESS_TO_FIELD_IMP(object, offset))
+#endif // fields_h__
+
+
+template<typename Dest>
+typename std::decay_t<Dest>& GetField(void* object, unsigned int offset)
+{
+    return *(reinterpret_cast<std::decay_t<Dest>*>(reinterpret_cast<PBYTE>(object) + (offset)));
+}
+
+template<typename Dest>
+void ReadField(void* object, unsigned int offset, Dest& output)
+{
+    output = GetField<std::decay_t<Dest>>(object, offset);
+}
