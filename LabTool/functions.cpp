@@ -107,10 +107,10 @@ void position_management(Player* p1, Player* p2) {
 		{
 			custom_pos = save_checkpoint(p1);
 			custom_pos2 = save_checkpoint(p2);
-			std::cout << std::endl << "P1 position checkpoint: ("
+			std::cout << std::endl << " P1 position checkpoint: ("
 				<< std::fixed << std::setprecision(2) << custom_pos.x << ", "
 				<< std::fixed << std::setprecision(2) << custom_pos.y << ")" << std::endl
-				<< "P2 position checkpoint: ("
+				<< " P2 position checkpoint: ("
 				<< std::fixed << std::setprecision(2) << custom_pos2.x << ", "
 				<< std::fixed << std::setprecision(2) << custom_pos2.y << ")" << std::endl;
 		}
@@ -201,7 +201,7 @@ void frameadvantage_count(Player* p1, Player* p2) {
 		if (p1->current_sequence <= 10 && p2->current_sequence <= 10)
 		{
 			misc_states.blockstring = false;
-			std::cout << "P1 is " << pos_or_neg << misc_states.frame_advantage << "F" << std::endl << std::endl;
+			std::cout << " P1 is " << pos_or_neg << misc_states.frame_advantage << "F" << std::endl << std::endl;
 		}
 		if (pos_or_neg == "")
 		{
@@ -238,9 +238,9 @@ void hjcadvantage_count(Player* p1, Player* p2) {
 			misc_states.hjc_blockstring = false;
 
 			if (ACCESS_SHORT(p1->p, CF_ELAPSED_IN_SUBSEQ) < ACCESS_SHORT(p2->p, CF_ELAPSED_IN_SUBSEQ))
-				std::cout << "P1 is [-" << misc_states.hjc_advantage << "F]" << std::endl << std::endl;
+				std::cout << " P1 is [-" << misc_states.hjc_advantage << "F]" << std::endl << std::endl;
 			else
-				std::cout << "P1 is [+" << misc_states.hjc_advantage << "F]" << std::endl << std::endl;
+				std::cout << " P1 is [+" << misc_states.hjc_advantage << "F]" << std::endl << std::endl;
 		}
 		++misc_states.hjc_advantage;
 	}
@@ -254,7 +254,7 @@ void gap_count(Player* player)
 		{
 			++misc_states.isIdle;
 			if (misc_states.isIdle <= 30)
-				std::cout << "Gap: " << misc_states.isIdle << "F" << std::endl;
+				std::cout << " Gap: " << misc_states.isIdle << "F" << std::endl;
 		}
 		misc_states.isIdle = -1;
 	}
@@ -293,7 +293,7 @@ void is_tight(Player* player)
 	{
 		if (misc_states.untight_nextframe)
 		{ //bug in which the first frame of the first hit is considered untight
-			std::cout << "Gap: 0F (mashable)" << std::endl;
+			std::cout << " Gap: 0F (mashable)" << std::endl;
 		}
 
 		misc_states.untight_nextframe = false;
@@ -383,6 +383,6 @@ void reset_skills(Player* player)
 			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_2 + i) = -1;
 		}
 		
-		std::cout << "Skills have been reset to default and lv0." << std::endl;
+		std::cout << " Skills have been reset to default and lv0." << std::endl;
 	}
 }

@@ -3,6 +3,7 @@
 //Personal header
 #include "functions.h"
 #include "labTool_manager.h"
+#include "joystick.h"
 
 /* freopen is obsolete */
 #pragma warning (disable : 4996)
@@ -62,19 +63,27 @@ Toggle_key toggle_keys;
 Held_key held_keys;
 Misc_state misc_states;
 
+
 void* __fastcall CBattleManager_OnInitialize(void* This, void* mystery, int dyn) {
 	auto ret = CBattleManager_Initialize(This, dyn);
 	return ret;
 }
 
 int __fastcall CBattleManager_OnDeInitialize(void* This) {
+	SetConsoleTitle(std::string("LabTool 1.1.0").c_str());
 	auto ret = CBattleManager_DeInitialize(This);
 	return CBattleManager_DeInitialize(This);
 }
 
+Joystick joystick;
 void* __fastcall CBattleManager_OnCreate(void* This) {
 	CBattleManager_Create(This);
 	LabToolManager::getInstance().create();
+
+	joystick.CreateDIObject();
+	joystick.getDIKeyboard();
+	joystick.getDIJoypad();
+
 	/* .INI */
 	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
 	savestate_keys.reset_pos = ::GetPrivateProfileInt("KEYS", "reset_pos", 0, s_profilePath);
@@ -98,16 +107,22 @@ void* __fastcall CBattleManager_OnCreate(void* This) {
 }
 
 void __fastcall CBattleManager_OnRender(void* This) {
+	auto& labToolMgr = LabToolManager::getInstance();
+	if (labToolMgr.isValidMode())
+	{
+		joystick.getKeyboardInputs();
+		joystick.getJoypadInputs();
+	}
 	CBattleManager_Render(This);
 }
 
+Player p1;
+Player p2;
 int __fastcall CBattleManager_OnProcess(void* This) {
 	auto& labToolMgr = LabToolManager::getInstance();
 
 	if (labToolMgr.isValidMode())
 	{
-		Player p1;
-		Player p2;
 		update_playerinfo(&p1, ADDR_BMGR_P1);
 		update_playerinfo(&p2, ADDR_BMGR_P2);
 
@@ -121,6 +136,10 @@ int __fastcall CBattleManager_OnProcess(void* This) {
 		reset_skills(&p2);
 		state_display(&p1);
 		state_display(&p2);
+
+		std::string str = std::to_string(p1.health) + "HP (" + std::to_string(p1.spirit) + "SP) -VS-"
+			+ std::to_string(p2.health) + "HP (" + std::to_string(p2.spirit) + "SP)";
+		SetConsoleTitle((LPCSTR)str.c_str());
 	}
 
 	auto ret = CBattleManager_Process(This);
@@ -149,6 +168,9 @@ extern "C" {
 		PathRemoveFileSpec(s_profilePath);
 		PathAppend(s_profilePath, "LabTool.ini");
 
+		if (!LoadLibrary("dinput8.dll")) {
+			return true;
+		}
 
 		if (!VirtualProtect((PVOID)text_Offset, text_Size, PAGE_EXECUTE_WRITECOPY, &old))
 		{
@@ -198,14 +220,13 @@ extern "C" {
 }
 
 
-//https://stackoverflow.com/a/32999084
-//https://stackoverflow.com/a/33001454
-//https://stackoverflow.com/a/8145349
-// shlwapi.lib user32.lib
+// https://stackoverflow.com/a/32999084
+// https://stackoverflow.com/a/33001454
+// https://stackoverflow.com/a/8145349
+// Libraries: shlwapi.lib user32.lib
 
 /*
 TODO LIST:
-Precise health&spirit display (d3dx9) in windowname
 controller messes up the key presses + implement controller presses
 */
 

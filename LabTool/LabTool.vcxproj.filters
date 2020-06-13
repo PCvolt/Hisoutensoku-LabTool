@@ -36,6 +36,9 @@
     <ClInclude Include="labtool_manager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="joystick.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="labtool_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="joystick.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
