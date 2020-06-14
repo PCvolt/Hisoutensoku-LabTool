@@ -9,43 +9,9 @@ int Joystick::CreateDIObject()
 	{
 		return 1;
 	}
+	return 0;
 }
 
-/* KEYBOARD */
-int Joystick::getDIKeyboard()
-{
-	result = lpDIObject->CreateDevice(GUID_SysKeyboard, &lpDIKeyboard, NULL);
-	if (FAILED(result)) { Finalize(); std::cout << "b" << std::endl; return 2; }
-	result = lpDIKeyboard->SetDataFormat(&c_dfDIKeyboard);
-	if (FAILED(result)) { Finalize(); std::cout << "b" << std::endl; return 3; }
-	result = lpDIKeyboard->SetCooperativeLevel(LabToolManager::getSokuHandle(), DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
-	if (FAILED(result)) { Finalize(); std::cout << "b" << std::endl; return 4; }
-
-	if (lpDIKeyboard)
-	{
-		lpDIKeyboard->Acquire();
-	}
-}
-
-int Joystick::getKeyboardInputs()
-{
-	char buffer[256];
-	result = lpDIKeyboard->GetDeviceState(sizeof(buffer), (LPVOID)&buffer);
-
-	if (FAILED(result))
-	{
-		// Possible errors: DIERR_INPUTLOST, DIERR_INVALIDPARAM, DIERR_NOTACQUIRED, DIERR_NOTINITIALIZED, E_PENDING
-		return 7;
-	}
-
-	// Keystate handling
-	if (KEYDOWN(buffer, DIK_A))
-	{
-		std::cout << "a" << std::endl;
-	}
-}
-
-/* JOYPAD */
 // Enumeration callback
 BOOL CALLBACK Joystick::CreateDeviceCallback(LPCDIDEVICEINSTANCE instance, LPVOID reference) {
 	return ((Joystick*)reference)->CreateDeviceCallback_impl(instance);
@@ -71,6 +37,11 @@ int Joystick::getDIJoypad() {
 		return 5;
 	}
 
+	if (lpDIJoypad == NULL) {
+		std::cout << "No joystick." << std::endl;
+		return 10;
+	}
+
 	result = lpDIJoypad->SetDataFormat(&c_dfDIJoystick2);
 
 	if (FAILED(result))
@@ -84,22 +55,33 @@ int Joystick::getDIJoypad() {
 	{
 		lpDIJoypad->Acquire();
 	}
+
+	std::cout << "Joystick acquired!" << std::endl;
+
+	return 0;
 }
 
 int Joystick::getJoypadInputs()
 {
-	DIJOYSTATE2 state;
-	result = lpDIJoypad->GetDeviceState(sizeof(state), (LPVOID)&state);
-
+	result = lpDIJoypad->GetDeviceState(sizeof(joypadBuffer), (LPVOID)&joypadBuffer);
+	
 	if (FAILED(result))
 	{
 		// Possible errors: DIERR_INPUTLOST, DIERR_INVALIDPARAM, DIERR_NOTACQUIRED, DIERR_NOTINITIALIZED, E_PENDING
 		return 8;
 	}
-
-	if (state.rgbButtons[0])
+	if (joypadBuffer.lZ == 32767)
 	{
-		std::cout << "a" << std::endl;
+		joypadBuffer.rgbButtons[15] = 0x00;
+	}
+	else if (joypadBuffer.lZ == 128)
+	{
+		joypadBuffer.rgbButtons[15] = 0x80;
+	}
+	else if (joypadBuffer.lZ == 65408)
+	{
+		joypadBuffer.rgbButtons[14] = 0x80;
+		joypadBuffer.rgbButtons[15] = 0x00;
 	}
 }
 
@@ -107,14 +89,6 @@ void Joystick::Finalize(void)
 {
 	if (lpDIObject)
 	{
-		// Finalisation du périphérique
-		if (lpDIKeyboard)
-		{
-			lpDIKeyboard->Unacquire();
-			lpDIKeyboard->Release();
-			lpDIKeyboard = NULL;
-		}
-
 		if (lpDIJoypad)
 		{
 			lpDIJoypad->Unacquire();
@@ -122,7 +96,6 @@ void Joystick::Finalize(void)
 			lpDIJoypad = NULL;
 		}
 
-		// Finalisation de DirectInput
 		lpDIObject->Release();
 		lpDIObject = NULL;
 	}

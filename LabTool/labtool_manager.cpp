@@ -1,9 +1,10 @@
 #include "stdafx.h"
-
+#include "joystick.h"
 #include "labTool_manager.h"
 
 #define ADDR_BMGR_P1 0x0C
 #define ADDR_BMGR_P2 0x10
+
 
 LabToolManager& LabToolManager::getInstance()
 {
@@ -91,6 +92,85 @@ bool LabToolManager::fetchCurrentMode()
 	}
 }
 
+void welcomeScreen()
+{
+	std::cout
+		<< "\tWelcome to LabTool 1.1.0!" << std::endl << std::endl
+		<< "Practice Mode - VS Mode - Replay Mode" << std::endl
+		<< " ===============================" << std::endl
+		<< "| 1: Positions reset\t\t|" << std::endl
+		<< "| 2: Positions save\t\t|" << std::endl
+		<< "| 4: Skills reset\t\t|" << std::endl
+		<< "| backspace: State display\t|" << std::endl
+		<< "| 0: Configure joystick\t\t|" << std::endl
+		<< " ===============================" << std::endl << std::endl;
+}
+
+bool configStart = false;
+bool pass1, pass2, pass3, pass4 = false;
+void configureScreen()
+{
+
+	// If 0 is pressed, configuration starts.
+	if (GetAsyncKeyState(0x30) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
+	{
+		system("cls");
+		configStart = true;
+
+		std::cout << "Associate button for [Reset position]: ";
+	}
+
+	if (configStart)
+	{
+		int btnNumber = -1;
+
+		//reset pos
+		for (int i = 0; i < sizeof(joystick.joypadBuffer.rgbButtons); ++i)
+		{
+			if (pass1 || joystick.joypadBuffer.rgbButtons[i] == 0x80)
+			{
+				btnNumber = i;
+				std::cout << btnNumber << std::endl;
+				pass1 = true;
+			}
+		}
+
+		//save pos
+		for (int i = 0; i < sizeof(joystick.joypadBuffer.rgbButtons); ++i)
+		{
+			if (pass2 || joystick.joypadBuffer.rgbButtons[i] == 0x80)
+			{
+				btnNumber = i;
+				std::cout << btnNumber << std::endl;
+				pass2 = true;
+
+			}
+		}
+		//reset skills
+		for (int i = 0; i < sizeof(joystick.joypadBuffer.rgbButtons); ++i)
+		{
+			if (pass3 || joystick.joypadBuffer.rgbButtons[i] == 0x80)
+			{
+				btnNumber = i;
+				std::cout << btnNumber << std::endl;
+				pass3 = true;
+			}
+		}
+		//display states
+		for (int i = 0; i < sizeof(joystick.joypadBuffer.rgbButtons); ++i)
+		{
+			if (joystick.joypadBuffer.rgbButtons[i] == 0x80)
+			{
+				btnNumber = i;
+				std::cout << btnNumber << std::endl;
+				std::cout << "Configuration over" << std::endl;
+				pass4 = true;
+				configStart = false;
+			}
+		}
+	}
+}
+
 LabToolConsole::LabToolConsole()
 {
 	if (AllocConsole())
@@ -110,24 +190,11 @@ LabToolConsole::LabToolConsole()
 
 		SetConsoleTitle(std::string("LabTool 1.1.0").c_str());
 
-		std::cout
-			<< "\tWelcome to LabTool 1.1.0!" << std::endl
-			<< " ===============================" << std::endl
-			<< "| 1: Positions reset\t\t|" << std::endl
-			<< "| 2: Positions save\t\t|" << std::endl
-			<< "| 4: Skills reset\t\t|" << std::endl
-			<< "| backspace: State display\t|" << std::endl
-			<< " ===============================" << std::endl << std::endl;
+		welcomeScreen();
 		return;
 	}
-	std::cout << "Labtool 1.1.0 works in:" << std::endl
-		<< " ===============================" << std::endl
-		<< "| Practice Mode\t\t|" << std::endl
-		<< "| VS Mode\t\t|" << std::endl
-		<< "| Replay Mode\t\t|" << std::endl
-		<< " ===============================" << std::endl;
 
-		//Possible console allocation problem ?
+	std::cout << "Console allocation problem, restart Hisoutensoku, please." << std::endl;
 }
 
 LabToolConsole::~LabToolConsole()

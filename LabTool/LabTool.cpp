@@ -1,9 +1,9 @@
 #include "stdafx.h"
 
 //Personal header
-#include "functions.h"
 #include "labTool_manager.h"
 #include "joystick.h"
+#include "functions.h"
 
 /* freopen is obsolete */
 #pragma warning (disable : 4996)
@@ -63,6 +63,9 @@ Toggle_key toggle_keys;
 Held_key held_keys;
 Misc_state misc_states;
 
+Joystick joystick;
+Player p1;
+Player p2;
 
 void* __fastcall CBattleManager_OnInitialize(void* This, void* mystery, int dyn) {
 	auto ret = CBattleManager_Initialize(This, dyn);
@@ -75,13 +78,13 @@ int __fastcall CBattleManager_OnDeInitialize(void* This) {
 	return CBattleManager_DeInitialize(This);
 }
 
-Joystick joystick;
+
 void* __fastcall CBattleManager_OnCreate(void* This) {
 	CBattleManager_Create(This);
 	LabToolManager::getInstance().create();
 
 	joystick.CreateDIObject();
-	joystick.getDIKeyboard();
+	//joystick.getDIKeyboard();
 	joystick.getDIJoypad();
 
 	/* .INI */
@@ -110,14 +113,20 @@ void __fastcall CBattleManager_OnRender(void* This) {
 	auto& labToolMgr = LabToolManager::getInstance();
 	if (labToolMgr.isValidMode())
 	{
-		joystick.getKeyboardInputs();
+		configureScreen();
 		joystick.getJoypadInputs();
 	}
 	CBattleManager_Render(This);
 }
 
-Player p1;
-Player p2;
+void rewriteConsoleTitle()
+{
+	std::string str = std::to_string(p1.health) + "HP (" + std::to_string(p1.spirit) + "SP) [VS]"
+		+ std::to_string(p2.health) + "HP (" + std::to_string(p2.spirit) + "SP)";
+	SetConsoleTitle((LPCSTR)str.c_str());
+}
+
+
 int __fastcall CBattleManager_OnProcess(void* This) {
 	auto& labToolMgr = LabToolManager::getInstance();
 
@@ -137,9 +146,7 @@ int __fastcall CBattleManager_OnProcess(void* This) {
 		state_display(&p1);
 		state_display(&p2);
 
-		std::string str = std::to_string(p1.health) + "HP (" + std::to_string(p1.spirit) + "SP) -VS-"
-			+ std::to_string(p2.health) + "HP (" + std::to_string(p2.spirit) + "SP)";
-		SetConsoleTitle((LPCSTR)str.c_str());
+		rewriteConsoleTitle();
 	}
 
 	auto ret = CBattleManager_Process(This);

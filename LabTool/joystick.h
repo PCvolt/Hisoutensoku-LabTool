@@ -10,18 +10,15 @@
 class Joystick
 {
 private:
-	HINSTANCE			 instance;
-	HRESULT				 result;
+	HINSTANCE			 instance = NULL;
+	HRESULT				 result = NULL;
 	LPDIRECTINPUT8		 lpDIObject = NULL;		// pointer to direct input object
-	LPDIRECTINPUTDEVICE8 lpDIKeyboard = NULL;	// pointer to keyboard device
 	LPDIRECTINPUTDEVICE8 lpDIJoypad = NULL;
 
 
 public:
+	DIJOYSTATE2			 joypadBuffer = { 0 };
 	int CreateDIObject();
-
-	int getDIKeyboard();
-	int getKeyboardInputs();
 
 	static BOOL CALLBACK CreateDeviceCallback(LPCDIDEVICEINSTANCE instance, LPVOID reference);
 	BOOL CreateDeviceCallback_impl(LPCDIDEVICEINSTANCE instance);
@@ -30,3 +27,5 @@ public:
 
 	void Finalize(void);
 };
+
+extern Joystick joystick;

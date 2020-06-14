@@ -107,7 +107,8 @@ void position_management(Player* p1, Player* p2) {
 		{
 			custom_pos = save_checkpoint(p1);
 			custom_pos2 = save_checkpoint(p2);
-			std::cout << std::endl << " P1 position checkpoint: ("
+			std::cout << std::endl
+				<< " P1 position checkpoint: ("
 				<< std::fixed << std::setprecision(2) << custom_pos.x << ", "
 				<< std::fixed << std::setprecision(2) << custom_pos.y << ")" << std::endl
 				<< " P2 position checkpoint: ("
@@ -382,7 +383,7 @@ void reset_skills(Player* player)
 			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_1 + i) = -1;
 			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_2 + i) = -1;
 		}
-		
+
 		std::cout << " Skills have been reset to default and lv0." << std::endl;
 	}
 }
