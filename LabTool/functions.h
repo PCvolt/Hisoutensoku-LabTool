@@ -57,23 +57,36 @@ enum tech_select : int { neutral, left, right, random };
 
 /* KEYS */
 struct Keys {
-	UINT save_pos;
 	UINT reset_pos;
-	UINT display_states;
+	UINT save_pos;
 	UINT reset_skills;
+	UINT display_states;
 };
 
-
 struct Toggle_key {
-	bool display_states;
-	bool save_pos;
 	bool reset_pos;
+	bool save_pos;
 	bool reset_skills;
+	bool display_states;
 };
 
 struct Held_key {
-	bool set_pos;
+	bool reset_pos;
 	bool save_pos;
+	bool reset_skills;
+	bool display_states;
+
+	bool JOYPADreset_pos;
+	bool JOYPADsave_pos;
+	bool JOYPADreset_skills;
+	bool JOYPADdisplay_states;
+};
+
+struct Button {
+	int reset_pos;
+	int save_pos;
+	int reset_skills;
+	int display_states;
 };
 
 /* PLAYER */
@@ -124,6 +137,7 @@ extern Keys savestate_keys;
 extern Toggle_key toggle_keys;
 extern Held_key held_keys;
 extern Misc_state misc_states;
+extern Button buttons;
 
 static HWND sokuWindow;
 

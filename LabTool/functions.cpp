@@ -102,86 +102,73 @@ void set_position(Player* player, Position pos, int mode)
 }
 
 void position_management(Player* p1, Player* p2) {
-	if (GetAsyncKeyState(savestate_keys.save_pos) & 0x8000 && LabToolManager::isHisoutensokuOnTop()) {
-		if (!held_keys.save_pos)
+	if (toggle_keys.save_pos)
+	{
+		custom_pos = save_checkpoint(p1);
+		custom_pos2 = save_checkpoint(p2);
+		std::cout << std::endl
+			<< " P1 position checkpoint: ("
+			<< std::fixed << std::setprecision(2) << custom_pos.x << ", "
+			<< std::fixed << std::setprecision(2) << custom_pos.y << ")" << std::endl
+			<< " P2 position checkpoint: ("
+			<< std::fixed << std::setprecision(2) << custom_pos2.x << ", "
+			<< std::fixed << std::setprecision(2) << custom_pos2.y << ")" << std::endl << std::endl;
+
+		toggle_keys.save_pos = !toggle_keys.save_pos;
+	}
+
+	if (toggle_keys.reset_pos)
+	{
+		if (p1->y_pressed > 0)//DOWN
 		{
-			custom_pos = save_checkpoint(p1);
-			custom_pos2 = save_checkpoint(p2);
-			std::cout << std::endl
-				<< " P1 position checkpoint: ("
-				<< std::fixed << std::setprecision(2) << custom_pos.x << ", "
-				<< std::fixed << std::setprecision(2) << custom_pos.y << ")" << std::endl
-				<< " P2 position checkpoint: ("
-				<< std::fixed << std::setprecision(2) << custom_pos2.x << ", "
-				<< std::fixed << std::setprecision(2) << custom_pos2.y << ")" << std::endl;
+			set_position(p1, MID_P1, NONE);
+			set_position(p2, MID_P2, NONE);
+
+			if (p1->x_pressed < 0)//LEFT+DOWN
+			{
+				set_position(p1, LN_P1, NONE);
+				set_position(p2, LN_P2, NONE);
+			}
+			else if (p1->x_pressed > 0)//RIGHT+DOWN
+			{
+				set_position(p1, RN_P1, NONE);
+				set_position(p2, RN_P2, NONE);
+			}
 		}
-		held_keys.save_pos = true;
-	}
-	else
-	{
-		held_keys.save_pos = false;
-	}
-
-
-	if (GetAsyncKeyState(savestate_keys.reset_pos) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
-	{
-		if (!held_keys.set_pos)
+		else
 		{
-			if (p1->y_pressed > 0)//DOWN
+			if (p1->x_pressed < 0)//LEFT
 			{
-				set_position(p1, MID_P1, NONE);
-				set_position(p2, MID_P2, NONE);
-
-				if (p1->x_pressed < 0)//LEFT+DOWN
-				{
-					set_position(p1, LN_P1, NONE);
-					set_position(p2, LN_P2, NONE);
-				}
-				else if (p1->x_pressed > 0)//RIGHT+DOWN
-				{
-					set_position(p1, RN_P1, NONE);
-					set_position(p2, RN_P2, NONE);
-				}
+				set_position(p1, LC_P1, NONE);
+				set_position(p2, LC_P2, NONE);
 			}
-			else
+			else if (p1->x_pressed > 0) //RIGHT
 			{
-				if (p1->x_pressed < 0)//LEFT
-				{
-					set_position(p1, LC_P1, NONE);
-					set_position(p2, LC_P2, NONE);
-				}
-				else if (p1->x_pressed > 0) //RIGHT
-				{
-					set_position(p1, RC_P1, NONE);
-					set_position(p2, RC_P2, NONE);
-				}
-				else//NOTHING
-				{
-					if (custom_pos.y > 0)
-					{
-						ACCESS_SHORT(p1->p, CF_CURRENT_SEQ) = 9;
-					}
-					if (custom_pos2.y > 0)
-					{
-						ACCESS_SHORT(p2->p, CF_CURRENT_SEQ) = 9;
-					}//ISSUE: find a way to reset the character to a air animation
-
-					if ((custom_pos.x < custom_pos2.x && p1->position.x > p2->position.x)
-						|| (custom_pos.x > custom_pos2.x&& p1->position.x < p2->position.x))
-					{
-						p1->position.xspeed = -p1->position.xspeed;
-					}//ISSUE: save the direction from ground to air reset
-
-					set_position(p1, custom_pos, CONSERVED);
-					set_position(p2, custom_pos2, CONSERVED);
-				}
+				set_position(p1, RC_P1, NONE);
+				set_position(p2, RC_P2, NONE);
 			}
-			held_keys.set_pos = true;
+			else//NOTHING
+			{
+				if (custom_pos.y > 0)
+				{
+					ACCESS_SHORT(p1->p, CF_CURRENT_SEQ) = 9;
+				}
+				if (custom_pos2.y > 0)
+				{
+					ACCESS_SHORT(p2->p, CF_CURRENT_SEQ) = 9;
+				}//ISSUE: find a way to reset the character to a air animation
+
+				if ((custom_pos.x < custom_pos2.x && p1->position.x > p2->position.x)
+					|| (custom_pos.x > custom_pos2.x&& p1->position.x < p2->position.x))
+				{
+					p1->position.xspeed = -p1->position.xspeed;
+				}//ISSUE: save the direction from ground to air reset
+
+				set_position(p1, custom_pos, CONSERVED);
+				set_position(p2, custom_pos2, CONSERVED);
+			}
 		}
-	}
-	else
-	{
-		held_keys.set_pos = false;
+		toggle_keys.reset_pos = !toggle_keys.reset_pos;
 	}
 }
 
@@ -314,9 +301,6 @@ void state_display(Player* player)
 	int blue = -1;
 	int green = -1;
 
-	if (GetAsyncKeyState(savestate_keys.display_states) & 1 && LabToolManager::isHisoutensokuOnTop())
-		toggle_keys.display_states = !toggle_keys.display_states;
-
 	if (toggle_keys.display_states)
 	{
 		if (player->frameflag & FF_GRAZE)
@@ -370,7 +354,7 @@ void reset_skills(Player* player)
 	if (ACCESS_CHAR(player->p, CF_CHARACTER_INDEX) == PATCHOULI)
 		nb_skills = 5;
 
-	if (GetAsyncKeyState(savestate_keys.reset_skills) & 0x8000 && LabToolManager::isHisoutensokuOnTop())
+	if (toggle_keys.reset_skills)
 	{
 		for (int i = 0; i < nb_skills; ++i)
 		{
@@ -384,6 +368,7 @@ void reset_skills(Player* player)
 			ACCESS_CHAR(player->p, CF_SKILL_LEVELS_2 + i) = -1;
 		}
 
+		toggle_keys.reset_skills = !toggle_keys.reset_skills;
 		std::cout << " Skills have been reset to default and lv0." << std::endl;
 	}
 }

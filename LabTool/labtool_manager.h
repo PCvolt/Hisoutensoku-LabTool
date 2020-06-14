@@ -90,7 +90,6 @@ private:
     EMode _currentMode = EMode::eUndefined;
 };
 
-void configureScreen();
 void welcomeScreen();
 
 #endif // labTool_manager_h__

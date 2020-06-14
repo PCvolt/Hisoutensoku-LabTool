@@ -3,9 +3,7 @@
 #include <dinput.h>
 #include <initguid.h>
 #include <shlwapi.h>
-// dinput8.lib dxguid.lib
 
-#define KEYDOWN( buffer, key ) ( buffer[key] & 0x80 ) 
 
 class Joystick
 {

@@ -58,12 +58,13 @@ static DWORD s_origCBattleManager_Size;
 #define ADDR_BMGR_P2 0x10
 
 static char s_profilePath[1024 + MAX_PATH];
-Keys savestate_keys;
-Toggle_key toggle_keys;
-Held_key held_keys;
+
+Toggle_key toggle_keys = { false };
+Held_key held_keys = { false };
 Misc_state misc_states;
 
 Joystick joystick;
+Button buttons;
 Player p1;
 Player p2;
 
@@ -78,21 +79,22 @@ int __fastcall CBattleManager_OnDeInitialize(void* This) {
 	return CBattleManager_DeInitialize(This);
 }
 
-
 void* __fastcall CBattleManager_OnCreate(void* This) {
 	CBattleManager_Create(This);
 	LabToolManager::getInstance().create();
 
 	joystick.CreateDIObject();
-	//joystick.getDIKeyboard();
 	joystick.getDIJoypad();
 
 	/* .INI */
-	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
 	savestate_keys.reset_pos = ::GetPrivateProfileInt("KEYS", "reset_pos", 0, s_profilePath);
+	savestate_keys.save_pos = ::GetPrivateProfileInt("KEYS", "save_pos", 0, s_profilePath);
 	savestate_keys.reset_skills = ::GetPrivateProfileInt("KEYS", "reset_skills", 0, s_profilePath);
 	savestate_keys.display_states = ::GetPrivateProfileInt("KEYS", "display_states", 0, s_profilePath);
-
+	buttons.reset_pos = ::GetPrivateProfileInt("KEYS", "JOYPADreset_pos", 0, s_profilePath);
+	buttons.save_pos = ::GetPrivateProfileInt("KEYS", "JOYPADsave_pos", 0, s_profilePath);
+	buttons.reset_skills = ::GetPrivateProfileInt("KEYS", "JOYPADreset_skills", 0, s_profilePath);
+	buttons.display_states = ::GetPrivateProfileInt("KEYS", "JOYPADdisplay_states", 0, s_profilePath);
 
 	held_keys = { false };
 	toggle_keys.display_states = false;
@@ -109,12 +111,70 @@ void* __fastcall CBattleManager_OnCreate(void* This) {
 	return This;
 }
 
+void toggleFunction(UINT* key, bool* functionBool, bool* held_key)
+{
+	if (GetAsyncKeyState(*key) & 0x8000)
+	{
+		if (!*held_key)
+		{
+			*functionBool = !*functionBool;
+			*held_key = true;
+		}
+	}
+	else
+	{
+		*held_key = false;
+	}
+}
+
+void applyKeyboardInputs()
+{
+	if (LabToolManager::isHisoutensokuOnTop())
+	{
+		toggleFunction(&savestate_keys.reset_pos, &toggle_keys.reset_pos, &held_keys.reset_pos);
+		toggleFunction(&savestate_keys.save_pos, &toggle_keys.save_pos, &held_keys.save_pos);
+		toggleFunction(&savestate_keys.reset_skills, &toggle_keys.reset_skills, &held_keys.reset_skills);
+		toggleFunction(&savestate_keys.display_states, &toggle_keys.display_states, &held_keys.display_states);
+	}
+}
+
+void joypadToggleFunction(int button, bool* functionBool, bool* held_key)
+{
+	if (button > -1)
+	{
+		if (joystick.joypadBuffer.rgbButtons[button] == 0x80)
+		{
+			if (!*held_key)
+			{
+				*functionBool = !*functionBool;
+				*held_key = true;
+			}
+		}
+		else
+		{
+			*held_key = false;
+		}
+	}
+}
+
+void applyJoypadInputs()
+{
+	if (LabToolManager::isHisoutensokuOnTop())
+	{
+		joypadToggleFunction(buttons.reset_pos, &toggle_keys.reset_pos, &held_keys.JOYPADreset_pos);
+		joypadToggleFunction(buttons.save_pos, &toggle_keys.save_pos, &held_keys.JOYPADsave_pos);
+		joypadToggleFunction(buttons.reset_skills, &toggle_keys.reset_skills, &held_keys.JOYPADreset_skills);
+		joypadToggleFunction(buttons.display_states, &toggle_keys.display_states, &held_keys.JOYPADdisplay_states);
+	}
+}
+
 void __fastcall CBattleManager_OnRender(void* This) {
 	auto& labToolMgr = LabToolManager::getInstance();
 	if (labToolMgr.isValidMode())
 	{
-		configureScreen();
 		joystick.getJoypadInputs();
+		applyKeyboardInputs();
+		applyJoypadInputs();
 	}
 	CBattleManager_Render(This);
 }
@@ -230,10 +290,5 @@ extern "C" {
 // https://stackoverflow.com/a/32999084
 // https://stackoverflow.com/a/33001454
 // https://stackoverflow.com/a/8145349
-// Libraries: shlwapi.lib user32.lib
-
-/*
-TODO LIST:
-controller messes up the key presses + implement controller presses
-*/
+// Libraries: shlwapi.lib user32.lib dinput8.lib dxguid.lib
 
