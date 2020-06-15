@@ -94,11 +94,10 @@ bool LabToolManager::fetchCurrentMode()
 	}
 }
 
-
 void welcomeScreen()
 {
 	std::string str;
-	str = std::string("\tWelcome to LabTool 1.1.0!\n\n")
+	str = std::string("\tWelcome to LabTool 1.1.1!\n\n")
 		+ std::string("Practice Mode - VS Mode - Replay Mode\n")
 		+ std::string(" ===============================\n")
 		+ std::string("| - Positions reset\t\t|\n")
@@ -109,7 +108,6 @@ void welcomeScreen()
 
 	std::cout << str << std::endl;
 }
-
 
 LabToolConsole::LabToolConsole()
 {
@@ -128,7 +126,7 @@ LabToolConsole::LabToolConsole()
 		std::cout.clear();
 		std::cerr.clear();
 
-		SetConsoleTitle(std::string("LabTool 1.1.0").c_str());
+		SetConsoleTitle(std::string("LabTool 1.1.1").c_str());
 
 		welcomeScreen();
 		return;

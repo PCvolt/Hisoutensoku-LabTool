@@ -11,15 +11,16 @@ private:
 	HINSTANCE			 instance = NULL;
 	HRESULT				 result = NULL;
 	LPDIRECTINPUT8		 lpDIObject = NULL;		// pointer to direct input object
-	LPDIRECTINPUTDEVICE8 lpDIJoypad = NULL;
 
 
 public:
+	LPDIRECTINPUTDEVICE8 lpDIJoypad = NULL;
 	DIJOYSTATE2			 joypadBuffer = { 0 };
 	int CreateDIObject();
 
 	static BOOL CALLBACK CreateDeviceCallback(LPCDIDEVICEINSTANCE instance, LPVOID reference);
 	BOOL CreateDeviceCallback_impl(LPCDIDEVICEINSTANCE instance);
+
 	int getDIJoypad();
 	int getJoypadInputs();
 

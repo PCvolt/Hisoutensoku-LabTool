@@ -172,9 +172,12 @@ void __fastcall CBattleManager_OnRender(void* This) {
 	auto& labToolMgr = LabToolManager::getInstance();
 	if (labToolMgr.isValidMode())
 	{
-		joystick.getJoypadInputs();
 		applyKeyboardInputs();
-		applyJoypadInputs();
+		if (joystick.lpDIJoypad)
+		{
+			joystick.getJoypadInputs();
+			applyJoypadInputs();
+		}
 	}
 	CBattleManager_Render(This);
 }

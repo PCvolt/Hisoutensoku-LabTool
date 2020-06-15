@@ -28,6 +28,32 @@ BOOL Joystick::CreateDeviceCallback_impl(LPCDIDEVICEINSTANCE instance) {
 	return DIENUM_STOP;
 }
 
+BOOL CALLBACK SetGameControllerAxesRanges(LPCDIDEVICEOBJECTINSTANCE devObjInst, LPVOID pvRef)
+{
+	LPDIRECTINPUTDEVICE8 gameController = (LPDIRECTINPUTDEVICE8)pvRef;
+	gameController->Unacquire();
+
+	DIPROPRANGE gameControllerRange;
+
+	gameControllerRange.lMin = -1000;
+	gameControllerRange.lMax = 1000;
+
+	// set the size of the structure
+	gameControllerRange.diph.dwSize = sizeof(DIPROPRANGE);
+	gameControllerRange.diph.dwHeaderSize = sizeof(DIPROPHEADER);
+
+	// set the object that we want to change		
+	gameControllerRange.diph.dwHow = DIPH_BYID;
+	gameControllerRange.diph.dwObj = devObjInst->dwType;
+
+	// now set the range for the axis		
+	if (FAILED(gameController->SetProperty(DIPROP_RANGE, &gameControllerRange.diph))) {
+		return DIENUM_STOP;
+	}
+
+	return DIENUM_CONTINUE;
+}
+
 int Joystick::getDIJoypad() {
 	result = lpDIObject->EnumDevices(DI8DEVCLASS_GAMECTRL, CreateDeviceCallback, (LPVOID)this, DIEDFL_ATTACHEDONLY);
 
@@ -53,7 +79,12 @@ int Joystick::getDIJoypad() {
 
 	if (lpDIJoypad)
 	{
+		lpDIJoypad->EnumObjects(SetGameControllerAxesRanges, lpDIJoypad, DIDFT_AXIS);
 		lpDIJoypad->Acquire();
+	}
+	else
+	{
+		return 11;
 	}
 
 	std::cout << "Joystick acquired!" << std::endl;
@@ -69,19 +100,6 @@ int Joystick::getJoypadInputs()
 	{
 		// Possible errors: DIERR_INPUTLOST, DIERR_INVALIDPARAM, DIERR_NOTACQUIRED, DIERR_NOTINITIALIZED, E_PENDING
 		return 8;
-	}
-	if (joypadBuffer.lZ == 32767)
-	{
-		joypadBuffer.rgbButtons[15] = 0x00;
-	}
-	else if (joypadBuffer.lZ == 128)
-	{
-		joypadBuffer.rgbButtons[15] = 0x80;
-	}
-	else if (joypadBuffer.lZ == 65408)
-	{
-		joypadBuffer.rgbButtons[14] = 0x80;
-		joypadBuffer.rgbButtons[15] = 0x00;
 	}
 }
 
